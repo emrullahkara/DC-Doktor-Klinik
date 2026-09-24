@@ -30,7 +30,7 @@ export const ROLLER = {
     aciklama: 'Günlük operasyonun sahibi; tıbbi veriyi yalnızca anonim/toplu görür.',
     izinler: [
       'komuta.goruntule', 'tibbi.istatistik.anonim', 'hasta.demografik.goruntule', 'randevu.goruntule',
-      'randevu.yonet', 'finans.goruntule', 'finans.iade.onayla', 'fiyat.yonet', 'stok.goruntule',
+      'randevu.yonet', 'finans.goruntule', 'finans.iade.onayla', 'fiyat.yonet', 'stok.goruntule', 'stok.yonet',
       'personel.goruntule', 'personel.yonet', 'belge.kurum.yonet', 'nobet.planla', 'nobet.onayla', 'kullanici.yonet', 'denetim.goruntule',
       'ayar.yonet', 'olay.bildir',
     ],

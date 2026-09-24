@@ -57,8 +57,8 @@ pnpm test                # tüm testler (API testleri dc_klinik_test veritabanı
 |---|---|
 | `packages/shared` | Meslekler, izin kataloğu, rol kataloğu, kilitli yasal yetki kuralları, kurum tipi profilleri |
 | `apps/api` | NestJS API: kurum kaydı, giriş, rol atama, yetki denetimi, denetim izi |
-| `apps/web` | Next.js web arayüzü: giriş, kayıt sihirbazı, Komuta Merkezi, hastalar, randevular, muayene, finans, personel ve belgeler, nöbet çizelgesi, kullanıcılar ve yetkiler, denetim izi |
-| `apps/web/e2e` | Tarayıcıda uçtan uca akış testleri (Playwright): kurum/yetki, hasta, randevu, muayene, finans, personel/belge ve nöbet akışları |
+| `apps/web` | Next.js web arayüzü: giriş, kayıt sihirbazı, Komuta Merkezi, hastalar, randevular, muayene, finans, personel ve belgeler, nöbet çizelgesi, stok ve ilaç, kullanıcılar ve yetkiler, denetim izi |
+| `apps/web/e2e` | Tarayıcıda uçtan uca akış testleri (Playwright): kurum/yetki, hasta, randevu, muayene, finans, personel/belge, nöbet ve stok akışları |
 | `apps/api/migrations` | Veritabanı şeması (SQL); satır düzeyi güvenlik ile kiracı izolasyonu |
 
 ### API (v1) — şu an hazır olanlar
@@ -81,6 +81,7 @@ pnpm test                # tüm testler (API testleri dc_klinik_test veritabanı
 | `POST /belgeler` · `POST /belgeler/:id/kaldir` · `GET /belgeler/:id/dosya` · `GET /kurum-belgeleri` | Personel ve kurum belgeleri; dosya türü imzadan doğrulanır, içerik şifreli saklanır, indirme kayda geçer |
 | `GET/POST /cizelge` · `POST /cizelge/:id/gorevler` · `…/onaya-gonder` · `…/karar` · `…/revizyon` · `POST /gorevler/:id/sil` · `GET /gorevlerim` | Aylık nöbet/vardiya çizelgesi: çakışma ve izin engeli, süre kuralı ihlalleri, dört göz onayı |
 | `GET/PATCH /nobet/ayarlar` · `GET/POST /personel/:id/izinler` · `POST /izinler/:id/iptal` | Nöbet kuralları (kurum ayarı) ve personel izinleri |
+| `GET/POST /urunler` · `GET/PATCH /urunler/:id` · `POST /urunler/:id/hareketler` · `GET /urunler/:id/lot-izleme` · `GET /stok/sahitler` | Stok: lot/SKT, FEFO, hastaya kullanım, fire, sayım farkı; SKT geçmiş ürün kullanılamaz; narkotik şahitli; lot → hasta izleme |
 | `GET /alarmlar` | Alarm motoru: süresi yaklaşan/geçen ve eksik zorunlu belgeler; görünürlük eskalasyon kuralına göre |
 | `GET /komuta/ozet` | Komuta Merkezi: bugünkü randevu, ciro, alacak, bekleme süresi, 14 günlük tahsilat |
 | `GET /denetim-izi` | Hash zincirli, değiştirilemez erişim ve işlem kayıtları |

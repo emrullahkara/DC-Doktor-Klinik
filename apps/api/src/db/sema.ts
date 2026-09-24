@@ -402,3 +402,35 @@ export const personelIzinleri = pgTable('personel_izinleri', {
   iptalEdenId: uuid('iptal_eden_id'),
   iptalZamani: timestamp('iptal_zamani', { withTimezone: true }),
 });
+
+export const urunler = pgTable('urunler', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  isletmeId: uuid('isletme_id').notNull(),
+  kod: text('kod').notNull(),
+  ad: text('ad').notNull(),
+  tip: text('tip').notNull(),
+  birim: text('birim').notNull(),
+  kontrol: text('kontrol').notNull().default('normal'),
+  saklama: text('saklama').notNull().default('oda'),
+  barkod: text('barkod'),
+  minBinde: bigint('min_binde', { mode: 'number' }).notNull().default(0),
+  aktif: boolean('aktif').notNull().default(true),
+  olusturanId: uuid('olusturan_id').notNull(),
+  zaman: timestamp('zaman', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const stokHareketleri = pgTable('stok_hareketleri', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  isletmeId: uuid('isletme_id').notNull(),
+  subeId: uuid('sube_id').notNull(),
+  urunId: uuid('urun_id').notNull(),
+  lot: text('lot').notNull(),
+  skt: date('skt', { mode: 'string' }),
+  tur: text('tur').notNull(),
+  miktarBinde: bigint('miktar_binde', { mode: 'number' }).notNull(),
+  kisiId: uuid('kisi_id'),
+  aciklama: text('aciklama').notNull().default(''),
+  yapanId: uuid('yapan_id').notNull(),
+  sahitId: uuid('sahit_id'),
+  zaman: timestamp('zaman', { withTimezone: true }).notNull().defaultNow(),
+});

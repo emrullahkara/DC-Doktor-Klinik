@@ -9,3 +9,4 @@ export * from './klinik';
 export * from './finans';
 export * from './belge';
 export * from './nobet';
+export * from './stok';

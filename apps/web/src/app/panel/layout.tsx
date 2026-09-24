@@ -33,7 +33,7 @@ const MENU: MenuOgesi[] = [
   { ad: m.menu.klinik, ikon: ikon(<path d="M3 12h4l2-5 4 10 2-5h6" />) },
   { ad: m.menu.personel, yol: '/panel/personel', ikon: ikon(<><circle cx="9" cy="8" r="3.5" /><path d="M2.5 20c1-3.5 3.5-5 6.5-5s5.5 1.5 6.5 5" /></>) },
   { ad: m.menu.nobet, yol: '/panel/nobet', ikon: ikon(<><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4M8 14h2M14 14h2M8 17h2" /></>) },
-  { ad: m.menu.stok, ikon: ikon(<><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z" /><path d="M4 7.5l8 4.5 8-4.5M12 12v9" /></>) },
+  { ad: m.menu.stok, yol: '/panel/stok', izinler: ['stok.goruntule', 'stok.yonet', 'tibbi.kayit.yaz', 'narkotik.yonet'], ikon: ikon(<><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z" /><path d="M4 7.5l8 4.5 8-4.5M12 12v9" /></>) },
   { ad: m.menu.finans, yol: '/panel/finans', izinler: ['finans.goruntule', 'finans.tahsilat', 'fiyat.yonet', 'fiyat.onayla'], ikon: ikon(<><rect x="3" y="6" width="18" height="13" rx="2" /><path d="M3 10h18M7 15h3" /></>) },
   { ad: m.menu.belgeler, yol: '/panel/belgeler', izinler: ['belge.kurum.yonet', 'komuta.goruntule'], ikon: ikon(<><path d="M6 3h9l4 4v14H6z" /><path d="M14 3v5h5M9 13h7M9 17h5" /></>) },
   { ad: m.menu.kalite, ikon: ikon(<path d="M12 3l8 3v6c0 4.5-3.5 8-8 9-4.5-1-8-4.5-8-9V6z" />) },

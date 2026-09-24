@@ -28,6 +28,8 @@ import { AlanSifrelemeService } from './ortak/alan-sifreleme.service';
 import { RandevularController } from './randevular/randevular.controller';
 import { RandevularService } from './randevular/randevular.service';
 import { ErisimGuard } from './yetki/erisim.guard';
+import { StokController } from './stok/stok.controller';
+import { StokService } from './stok/stok.service';
 import { YetkiService } from './yetki/yetki.service';
 
 @Module({})
@@ -36,7 +38,7 @@ export class AppModule {
     return {
       module: AppModule,
       imports: [JwtModule.register({ secret: ayarlar.jwtGizli, signOptions: { expiresIn: '8h' } })],
-      controllers: [KimlikController, KullanicilarController, KurumTipleriController, DenetimController, HastalarController, RandevularController, MuayenelerController, FinansController, KomutaController, BelgelerController, NobetController, AlarmlarController],
+      controllers: [KimlikController, KullanicilarController, KurumTipleriController, DenetimController, HastalarController, RandevularController, MuayenelerController, FinansController, KomutaController, BelgelerController, NobetController, StokController, AlarmlarController],
       providers: [
         { provide: AYARLAR, useValue: ayarlar },
         VeritabaniService,
@@ -52,6 +54,7 @@ export class AppModule {
         KomutaService,
         BelgelerService,
         NobetService,
+        StokService,
         AlarmlarService,
         { provide: APP_GUARD, useClass: ErisimGuard },
       ],
