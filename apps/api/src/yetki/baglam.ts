@@ -21,12 +21,16 @@ export interface KimlikliIstek extends Request {
 
 export const ACIK_ANAHTARI = 'acik';
 export const IZIN_ANAHTARI = 'izinler';
+export const HERHANGI_IZIN_ANAHTARI = 'herhangiIzin';
 
 /** Kimlik doğrulaması gerektirmeyen uç nokta. */
 export const Acik = () => SetMetadata(ACIK_ANAHTARI, true);
 
 /** Uç noktanın gerektirdiği izinler (hepsi gerekir). */
 export const IzinGerekli = (...izinler: Izin[]) => SetMetadata(IZIN_ANAHTARI, izinler);
+
+/** Uç nokta için bu izinlerden en az biri yeterli. */
+export const HerhangiIzin = (...izinler: Izin[]) => SetMetadata(HERHANGI_IZIN_ANAHTARI, izinler);
 
 export const KimlikBilgisi = createParamDecorator((_: unknown, ctx: ExecutionContext): Kimlik => {
   const istek = ctx.switchToHttp().getRequest<KimlikliIstek>();
@@ -42,4 +46,22 @@ export const Yetki = createParamDecorator((_: unknown, ctx: ExecutionContext): Y
 
 export function istemciIp(istek: Request): string | null {
   return istek.ip ?? null;
+}
+
+export const OTURUM_CEREZI = 'dc_oturum';
+
+export function cerezOku(baslik: string | undefined, ad: string): string | null {
+  if (!baslik) return null;
+  for (const parca of baslik.split(';')) {
+    const esit = parca.indexOf('=');
+    if (esit > 0 && parca.slice(0, esit).trim() === ad) {
+      const deger = parca.slice(esit + 1).trim();
+      try {
+        return decodeURIComponent(deger) || null;
+      } catch {
+        return null;
+      }
+    }
+  }
+  return null;
 }

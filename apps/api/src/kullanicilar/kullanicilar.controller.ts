@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Req } from '@nestjs/common';
 import type { Request } from 'express';
 import { ZodPipe } from '../ortak/dogrulama';
-import { istemciIp, IzinGerekli, type Kimlik, KimlikBilgisi, Yetki, type YetkiBaglami } from '../yetki/baglam';
+import { HerhangiIzin, istemciIp, IzinGerekli, type Kimlik, KimlikBilgisi, Yetki, type YetkiBaglami } from '../yetki/baglam';
 import { type KullaniciOlusturIstegi, kullaniciOlusturSemasi, type RolAtaIstegi, rolAtaSemasi } from './kullanicilar.dto';
 import { KullanicilarService } from './kullanicilar.service';
 
@@ -14,8 +14,9 @@ export class KullanicilarController {
     return this.kullanicilar.ben(kimlik, yetki);
   }
 
+  /** Rol atayabilen herkes (idari yönetici, mesul müdür, sahip) kullanıcıları görebilir. */
   @Get('kullanicilar')
-  @IzinGerekli('kullanici.yonet')
+  @HerhangiIzin('kullanici.yonet', 'yetki.saglik.onayla', 'mesul.mudur.ata')
   listele(@KimlikBilgisi() kimlik: Kimlik) {
     return this.kullanicilar.listele(kimlik);
   }

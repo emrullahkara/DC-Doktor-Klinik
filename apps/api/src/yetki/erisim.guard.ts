@@ -7,7 +7,7 @@ import { VeritabaniService } from '../db/veritabani.service';
 import { subeler } from '../db/sema';
 import { DenetimService } from '../denetim/denetim.service';
 import { ApiHatasi } from '../ortak/dogrulama';
-import { ACIK_ANAHTARI, IZIN_ANAHTARI, istemciIp, type KimlikliIstek } from './baglam';
+import { ACIK_ANAHTARI, cerezOku, HERHANGI_IZIN_ANAHTARI, IZIN_ANAHTARI, istemciIp, type KimlikliIstek, OTURUM_CEREZI } from './baglam';
 import { YetkiService } from './yetki.service';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -54,6 +54,7 @@ export class ErisimGuard implements CanActivate {
     }
     const subeId = subeBasligi ?? null;
     const gerekenler = this.reflector.getAllAndOverride<Izin[] | undefined>(IZIN_ANAHTARI, hedefler) ?? [];
+    const herhangiBiri = this.reflector.getAllAndOverride<Izin[] | undefined>(HERHANGI_IZIN_ANAHTARI, hedefler) ?? [];
     const baglam = { isletmeId: icerik.isl, kullaniciId: icerik.sub };
 
     const sonuc = await this.db.kiraciIslemi(baglam, async (tx) => {
@@ -65,6 +66,7 @@ export class ErisimGuard implements CanActivate {
       }
       const izinler = this.yetki.izinler(veri, subeId);
       const eksik = gerekenler.filter((i) => !izinler.has(i));
+      if (herhangiBiri.length > 0 && !herhangiBiri.some((i) => izinler.has(i))) eksik.push(...herhangiBiri);
       if (eksik.length > 0) {
         await this.denetim.kaydet(tx, {
           ...baglam,
@@ -92,12 +94,12 @@ export class ErisimGuard implements CanActivate {
     }
   }
 
+  /** Önce `Authorization: Bearer` başlığı (API istemcileri), yoksa tarayıcının httpOnly oturum çerezi. */
   private tokenAl(istek: KimlikliIstek): string {
-    const baslik = istek.header('authorization') ?? '';
-    const [tur, deger] = baslik.split(' ');
-    if (tur !== 'Bearer' || !deger) {
-      throw new ApiHatasi(HttpStatus.UNAUTHORIZED, 'KIMLIK_GEREKLI', 'Giriş yapmanız gerekiyor.');
-    }
-    return deger;
+    const [tur, deger] = (istek.header('authorization') ?? '').split(' ');
+    if (tur === 'Bearer' && deger) return deger;
+    const cerez = cerezOku(istek.header('cookie'), OTURUM_CEREZI);
+    if (cerez) return cerez;
+    throw new ApiHatasi(HttpStatus.UNAUTHORIZED, 'KIMLIK_GEREKLI', 'Giriş yapmanız gerekiyor.');
   }
 }

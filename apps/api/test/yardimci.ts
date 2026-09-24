@@ -9,6 +9,7 @@ export const TEST_AYARLARI: Ayarlar = {
   veritabaniUrl: process.env.TEST_DATABASE_URL!,
   jwtGizli: 'test-icin-en-az-otuz-iki-karakterlik-gizli-deger',
   port: 0,
+  guvenliCerez: false,
 };
 
 /** Test veritabanını sıfırlar ve tüm migration'ları baştan uygular. */

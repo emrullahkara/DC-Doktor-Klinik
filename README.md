@@ -1,6 +1,6 @@
 # DC Doktor Klinik — Sağlık Kuruluşu Yönetim Platformu
 
-> **Durum:** Faz 0 — tasarım onaylandı, arka uç çekirdeği geliştiriliyor (kurum kaydı, giriş, yetki motoru, çok kiracılı veritabanı, denetim izi).
+> **Durum:** Faz 0 — tasarım onaylandı; kurum kaydı, giriş, yetki motoru, çok kiracılı veritabanı, denetim izi ve bunların web arayüzü çalışıyor.
 
 DC Doktor Klinik; **muayenehane, poliklinik, tıp merkezi, dal merkezi, ağız ve diş sağlığı klinikleri, estetik/medikal estetik klinikleri, fizik tedavi / diyet / psikoloji danışmanlık merkezleri, veteriner klinikleri ve evde sağlık hizmeti sunan kuruluşların** tüm operasyonunu — hasta, klinik, personel, nöbet, ilaç/stok, cihaz, finans, kalite, hukuki uyum ve raporlamayı — **tek bir platformda ve tek bir “Komuta Merkezi” ekranından** yönetmek için tasarlanmış bir yazılımdır.
 
@@ -49,6 +49,7 @@ cp .env.example .env
 pnpm --filter @dc/shared build
 pnpm db:migrate          # tabloları oluşturur
 pnpm dev:api             # http://localhost:3000/api/v1
+pnpm --filter @dc/web dev # http://localhost:3001 (API'ye /api/v1 üzerinden bağlanır)
 pnpm test                # tüm testler (API testleri dc_klinik_test veritabanını sıfırlar)
 ```
 
@@ -56,6 +57,8 @@ pnpm test                # tüm testler (API testleri dc_klinik_test veritabanı
 |---|---|
 | `packages/shared` | Meslekler, izin kataloğu, rol kataloğu, kilitli yasal yetki kuralları, kurum tipi profilleri |
 | `apps/api` | NestJS API: kurum kaydı, giriş, rol atama, yetki denetimi, denetim izi |
+| `apps/web` | Next.js web arayüzü: giriş, kayıt sihirbazı, Komuta Merkezi, kullanıcılar ve yetkiler, denetim izi |
+| `apps/web/e2e` | Tarayıcıda uçtan uca akış testi (Playwright) |
 | `apps/api/migrations` | Veritabanı şeması (SQL); satır düzeyi güvenlik ile kiracı izolasyonu |
 
 ### API (v1) — şu an hazır olanlar

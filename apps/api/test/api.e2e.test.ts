@@ -105,6 +105,20 @@ describe('giriş', () => {
     expect(eylemler).toEqual(expect.arrayContaining(['kurum.kayit', 'giris.basarili', 'giris.basarisiz']));
   });
 
+  it('tarayıcı için oturum httpOnly ve SameSite=Strict çerezle açılır, çıkışta silinir', async () => {
+    const kayit = await kurumKaydet(app);
+    const ajan = request.agent(app.getHttpServer());
+    const giris = await ajan.post('/api/v1/kimlik/giris').send({ eposta: kayit.eposta, parola: 'guclu-parola-123' });
+    const cerez = String(giris.headers['set-cookie']);
+    expect(cerez).toMatch(/dc_oturum=/);
+    expect(cerez).toMatch(/HttpOnly/);
+    expect(cerez).toMatch(/SameSite=Strict/);
+
+    expect((await ajan.get('/api/v1/ben')).status).toBe(200);
+    expect((await ajan.post('/api/v1/kimlik/cikis')).status).toBe(204);
+    expect((await ajan.get('/api/v1/ben')).status).toBe(401);
+  });
+
   it('token olmadan veya bozuk token ile korumalı uç noktaya erişilemez', async () => {
     expect((await request(app.getHttpServer()).get('/api/v1/ben')).status).toBe(401);
     expect((await yetkili(app, 'bozuk.token.degeri').get('/ben')).status).toBe(401);
@@ -126,6 +140,9 @@ describe('rol atama ve yasal kurallar', () => {
     expect(mesul.status).toBe(201);
 
     const doktorToken = await girisYap(doktor.eposta);
+    // Mesul müdür (yalnızca şubede) kullanıcı listesini görür ama yeni kullanıcı ekleyemez
+    expect((await yetkili(app, doktorToken, subeId).get('/kullanicilar')).status).toBe(200);
+    expect((await yetkili(app, doktorToken, subeId).post('/kullanicilar').send({ eposta: benzersizEposta('x'), adSoyad: 'X', meslek: 'idari', geciciParola: 'gecici-parola-123' })).status).toBe(403);
     const onaylanan = await yetkili(app, doktorToken).post(`/kullanicilar/${hemsire.id}/roller`).send({ rolKodu: 'hemsire', subeId });
     expect(onaylanan.status).toBe(201);
 
