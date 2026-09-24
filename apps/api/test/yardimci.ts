@@ -10,6 +10,7 @@ export const TEST_AYARLARI: Ayarlar = {
   jwtGizli: 'test-icin-en-az-otuz-iki-karakterlik-gizli-deger',
   port: 0,
   guvenliCerez: false,
+  alanAnahtari: Buffer.alloc(32, 7),
 };
 
 /** Test veritabanını sıfırlar ve tüm migration'ları baştan uygular. */
@@ -66,5 +67,18 @@ export function yetkili(app: INestApplication, token: string, subeId?: string) {
   return {
     get: (yol: string) => ekle(request(sunucu).get(`/api/v1${yol}`)),
     post: (yol: string) => ekle(request(sunucu).post(`/api/v1${yol}`)),
+    patch: (yol: string) => ekle(request(sunucu).patch(`/api/v1${yol}`)),
   };
+}
+
+/** Kullanıcı ekler, rolünü atar ve oturum açar. `atayanToken` rolü atayabilecek kişinin oturumudur. */
+export async function calisanEkle(app: INestApplication, ekleyenToken: string, atayanToken: string, meslek: string, rolKodu: string, subeId: string | null) {
+  const eposta = benzersizEposta(rolKodu);
+  const eklenen = await yetkili(app, ekleyenToken).post('/kullanicilar').send({ eposta, adSoyad: `Deneme ${rolKodu}`, meslek, geciciParola: 'gecici-parola-123' });
+  if (eklenen.status !== 201) throw new Error(`Kullanıcı eklenemedi: ${JSON.stringify(eklenen.body)}`);
+  const id = (eklenen.body as { id: string }).id;
+  const atama = await yetkili(app, atayanToken, subeId ?? undefined).post(`/kullanicilar/${id}/roller`).send({ rolKodu, subeId });
+  if (atama.status !== 201) throw new Error(`Rol atanamadı: ${JSON.stringify(atama.body)}`);
+  const giris = await request(app.getHttpServer()).post('/api/v1/kimlik/giris').send({ eposta, parola: 'gecici-parola-123' });
+  return { id, token: (giris.body as { token: string }).token };
 }

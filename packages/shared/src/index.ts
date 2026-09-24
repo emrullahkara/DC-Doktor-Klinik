@@ -3,3 +3,4 @@ export * from './izinler';
 export * from './roller';
 export * from './kurallar';
 export * from './kurum-tipleri';
+export * from './hasta';

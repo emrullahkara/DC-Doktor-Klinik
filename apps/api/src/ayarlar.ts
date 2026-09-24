@@ -4,6 +4,8 @@ export interface Ayarlar {
   port: number;
   /** Oturum çerezi yalnızca HTTPS üzerinden gönderilsin mi (üretimde her zaman evet). */
   guvenliCerez: boolean;
+  /** Hassas alan şifreleme ana anahtarı (32 bayt). Kaybedilirse şifreli alanlar açılamaz. */
+  alanAnahtari: Buffer;
 }
 
 /** Ortam değişkenlerini okur; eksik veya zayıf değerde uygulama başlamaz. */
@@ -15,7 +17,9 @@ export function ayarlariOku(env: NodeJS.ProcessEnv = process.env): Ayarlar {
   const port = Number(env.PORT ?? 3000);
   if (!Number.isInteger(port) || port <= 0) throw new Error('PORT geçersiz');
   const guvenliCerez = env.NODE_ENV === 'production' || env.COOKIE_SECURE === 'true';
-  return { veritabaniUrl, jwtGizli, port, guvenliCerez };
+  const alanAnahtari = Buffer.from(env.ALAN_SIFRELEME_ANAHTARI ?? '', 'base64');
+  if (alanAnahtari.length !== 32) throw new Error('ALAN_SIFRELEME_ANAHTARI base64 kodlu 32 bayt olmalı (openssl rand -base64 32)');
+  return { veritabaniUrl, jwtGizli, port, guvenliCerez, alanAnahtari };
 }
 
 export const AYARLAR = Symbol('AYARLAR');

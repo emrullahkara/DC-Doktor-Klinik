@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { bigint, boolean, jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { bigint, boolean, date, jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 
 // Tablo tanımları migrations/ altındaki SQL ile birebir aynıdır; şema değişikliği
 // her zaman yeni bir migration dosyasıyla yapılır.
@@ -54,4 +54,86 @@ export const denetimIzi = pgTable('denetim_izi', {
   oncekiOzet: text('onceki_ozet'),
   // Tetikleyici hesaplar; uygulama boş gönderir.
   ozet: text('ozet').notNull().default(''),
+});
+
+export const kisiler = pgTable('kisiler', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  isletmeId: uuid('isletme_id').notNull(),
+  kimlikTuru: text('kimlik_turu').notNull(),
+  kimlikNoSifreli: text('kimlik_no_sifreli'),
+  kimlikNoOzet: text('kimlik_no_ozet'),
+  kimlikNoMaske: text('kimlik_no_maske'),
+  ad: text('ad').notNull(),
+  soyad: text('soyad').notNull(),
+  dogumTarihi: date('dogum_tarihi', { mode: 'string' }),
+  cinsiyet: text('cinsiyet'),
+  uyruk: text('uyruk'),
+  telefon: text('telefon'),
+  eposta: text('eposta'),
+  adres: text('adres'),
+  kanGrubu: text('kan_grubu'),
+  iletisimTercihi: text('iletisim_tercihi'),
+  acilKisiAd: text('acil_kisi_ad'),
+  acilKisiTelefon: text('acil_kisi_telefon'),
+  acilKisiYakinlik: text('acil_kisi_yakinlik'),
+  temsilciAd: text('temsilci_ad'),
+  temsilciTelefon: text('temsilci_telefon'),
+  temsilciYakinlik: text('temsilci_yakinlik'),
+  aramaMetni: text('arama_metni').notNull(),
+  kayitSubesiId: uuid('kayit_subesi_id'),
+  olusturanId: uuid('olusturan_id'),
+  olusturmaZamani: timestamp('olusturma_zamani', { withTimezone: true }).notNull().defaultNow(),
+  guncellemeZamani: timestamp('guncelleme_zamani', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const hayvanlar = pgTable('hayvanlar', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  isletmeId: uuid('isletme_id').notNull(),
+  sahipKisiId: uuid('sahip_kisi_id').notNull(),
+  ad: text('ad').notNull(),
+  tur: text('tur').notNull(),
+  irk: text('irk'),
+  cinsiyet: text('cinsiyet'),
+  kisirlastirilmis: boolean('kisirlastirilmis'),
+  dogumTarihi: date('dogum_tarihi', { mode: 'string' }),
+  renk: text('renk'),
+  mikrocipNo: text('mikrocip_no'),
+  olusturanId: uuid('olusturan_id'),
+  olusturmaZamani: timestamp('olusturma_zamani', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const hastaUyarilari = pgTable('hasta_uyarilari', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  isletmeId: uuid('isletme_id').notNull(),
+  kisiId: uuid('kisi_id'),
+  hayvanId: uuid('hayvan_id'),
+  tur: text('tur').notNull(),
+  aciklama: text('aciklama').notNull().default(''),
+  olusturanId: uuid('olusturan_id'),
+  olusturmaZamani: timestamp('olusturma_zamani', { withTimezone: true }).notNull().defaultNow(),
+  kaldiranId: uuid('kaldiran_id'),
+  kaldirmaZamani: timestamp('kaldirma_zamani', { withTimezone: true }),
+});
+
+export const aydinlatmaKayitlari = pgTable('aydinlatma_kayitlari', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  isletmeId: uuid('isletme_id').notNull(),
+  kisiId: uuid('kisi_id').notNull(),
+  metinKodu: text('metin_kodu').notNull(),
+  metinSurumu: text('metin_surumu').notNull(),
+  kanal: text('kanal').notNull(),
+  sunanId: uuid('sunan_id'),
+  zaman: timestamp('zaman', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const rizalar = pgTable('rizalar', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  isletmeId: uuid('isletme_id').notNull(),
+  kisiId: uuid('kisi_id').notNull(),
+  rizaTuru: text('riza_turu').notNull(),
+  verildi: boolean('verildi').notNull(),
+  kanal: text('kanal').notNull(),
+  metinSurumu: text('metin_surumu').notNull(),
+  kaydedenId: uuid('kaydeden_id'),
+  zaman: timestamp('zaman', { withTimezone: true }).notNull().defaultNow(),
 });
