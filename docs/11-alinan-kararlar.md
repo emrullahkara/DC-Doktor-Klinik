@@ -9,6 +9,11 @@
 | K5 | Muhasebe | **Ön muhasebe + aktarım.** Resmî defter ve bordro dış programlarda | Finans modülü kapsamı sabit (bkz. 04.6) |
 | K6 | Ek özellik | **Çok dil ilk sürümde:** Türkçe, İngilizce, Arapça (sağdan sola), Rusça, Almanca | Arayüz, şablon ve belgelerde i18n baştan; Arapça için RTL düzen |
 | K7 | Marka | **“DC Doktor Klinik” ürün adıdır;** logo/renk kimliği tarafımızdan önerilecek | Tasarım sistemi taslağı Faz 0’da |
+| K9 | Fiyatlandırma | **Şube başına temel ücret + aktif hekim sayısı + isteğe bağlı ek modüller** (SGK/MEDULA, evde sağlık, turizm, SMS paketi) | Abonelik motoru bu üç bileşeni ölçer ve faturalar |
+| K10 | Barındırma | **Türkiye’de bulut**; somut sağlayıcı canlıya yakın karşılaştırılıp seçilecek | Altyapı sağlayıcıdan bağımsız (konteyner + IaC) kurulur |
+| K11 | Teknoloji | Claude’a bırakıldı → **TypeScript + NestJS (modüler monolit), PostgreSQL, React + Next.js**; mobil için ileride React Native | Tek dil (TypeScript) ile arka uç, ön uç ve mobil arasında kod/tip paylaşımı |
+| K12 | e-Fatura ve SGK | **Esnek yapı:** e-Fatura birden fazla entegratöre bağlanabilir adaptörle; **MEDULA açılıp kapatılabilen ek modül** (SGK anlaşması olmayan kurumda görünmez) | Entegratör seçimi sonraya; MEDULA Faz 2’de kalır |
+| K13 | Sonraki adım | **Logo/renk önerisi + ekran taslakları** (Komuta Merkezi, randevu, muayene, kurum kayıt sihirbazı), onaydan sonra kodlama | Faz 0 sırası belirlendi |
 | K8 | Hukuk ve pilot | Şimdilik avukat ve pilot kurum yok. **Hukuki metin taslakları Claude tarafından hazırlanacak**, canlıya çıkmadan önce hukukçu onayı alınacak | Tüm metinlerde “taslak – hukuki onay bekliyor” durumu; onaysız şablon canlı kiracıda kullanılamaz |
 
 ## Kurum Tipi Profili Motoru (K2’nin Tasarımı)
