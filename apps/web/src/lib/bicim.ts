@@ -8,9 +8,11 @@ export function yasHesapla(dogumTarihi: string | null, bugun = new Date()): numb
   return yas;
 }
 
+/** “GG.AA.YYYY”. Salt tarih (YYYY-AA-GG) olduğu gibi; zaman damgası Türkiye saatindeki güne çevrilir. */
 export function tarihBicimle(tarih: string | null): string {
   if (!tarih) return '—';
-  const [y, a, g] = tarih.slice(0, 10).split('-');
+  const gun = tarih.length > 10 ? bugunTarihi(new Date(tarih)) : tarih;
+  const [y, a, g] = gun.split('-');
   return `${g}.${a}.${y}`;
 }
 

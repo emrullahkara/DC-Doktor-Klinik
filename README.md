@@ -57,8 +57,8 @@ pnpm test                # tüm testler (API testleri dc_klinik_test veritabanı
 |---|---|
 | `packages/shared` | Meslekler, izin kataloğu, rol kataloğu, kilitli yasal yetki kuralları, kurum tipi profilleri |
 | `apps/api` | NestJS API: kurum kaydı, giriş, rol atama, yetki denetimi, denetim izi |
-| `apps/web` | Next.js web arayüzü: giriş, kayıt sihirbazı, Komuta Merkezi, kullanıcılar ve yetkiler, denetim izi |
-| `apps/web/e2e` | Tarayıcıda uçtan uca akış testleri (Playwright): kurum/yetki, hasta, randevu ve muayene akışları |
+| `apps/web` | Next.js web arayüzü: giriş, kayıt sihirbazı, Komuta Merkezi, hastalar, randevular, muayene, finans, kullanıcılar ve yetkiler, denetim izi |
+| `apps/web/e2e` | Tarayıcıda uçtan uca akış testleri (Playwright): kurum/yetki, hasta, randevu, muayene ve finans akışları |
 | `apps/api/migrations` | Veritabanı şeması (SQL); satır düzeyi güvenlik ile kiracı izolasyonu |
 
 ### API (v1) — şu an hazır olanlar
@@ -74,4 +74,8 @@ pnpm test                # tüm testler (API testleri dc_klinik_test veritabanı
 | `GET /hastalar/:id/kimlik-no` · `POST /hastalar/:id/rizalar` · `…/uyarilar` · `…/hayvanlar` | Açık kimlik no (kayıtlı), rıza verme/geri çekme, role göre görünen uyarılar, hayvan kaydı |
 | `GET/POST /kaynaklar` · `GET /randevular/takvim` · `POST /randevular` · `…/:id/durum` · `…/:id/tasi` | Oda/cihaz, günlük takvim, çakışmasız randevu, kabul (sıra no), muayene, iptal, taşıma |
 | `POST /muayeneler` · `GET/PATCH /muayeneler/:id` · `…/imzala` · `…/ek-not` · `GET /hastalar/:id/muayeneler` · `POST /hastalar/:id/acil-erisim` · `GET /icd10` | Muayene kaydı (tedavi ilişkisi şartı), parolalı imza ve kilit, ek not, geçmiş, gerekçeli acil erişim, ICD-10 arama |
+| `GET/POST /hizmetler` · `POST /hizmetler/:id/fiyat` · `GET /fiyat-talepleri` · `POST /fiyat-talepleri/:id/karar` | Hizmet kataloğu; fiyat değişikliği dört göz ilkesiyle (talep eden onaylayamaz) |
+| `GET /hastalar/:id/hesap` · `POST …/hesap/kalemler` · `…/kalemler/:id/iptal` · `POST /hastalar/:id/tahsilatlar` · `POST /tahsilatlar/:id/iade` | Hasta hesabı; %20 üstü indirim ve iade yönetici onaylı; tahsilatı alan iade edemez |
+| `GET /kasa` · `POST /kasa/kapanis` | Ödeme türüne göre gün sonu kasa; fark açıklamasız kapatılamaz, kapalı güne hareket girilmez |
+| `GET /komuta/ozet` | Komuta Merkezi: bugünkü randevu, ciro, alacak, bekleme süresi, 14 günlük tahsilat |
 | `GET /denetim-izi` | Hash zincirli, değiştirilemez erişim ve işlem kayıtları |

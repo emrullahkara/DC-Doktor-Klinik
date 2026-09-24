@@ -127,6 +127,7 @@ describe('finans', () => {
       const ozet = (await yetkili(app, sahip).get('/komuta/ozet')).body;
       expect(ozet.bugunCiroKurus).toBe(100000 + 50000 - 20000 + 5000);
       expect(ozet.ciro14Gun).toHaveLength(14);
+      expect(ozet.ciro14Gun.at(-1).gun).toMatch(/^\d{4}-\d{2}-\d{2}$/);
       expect(ozet.alacak.hastaSayisi).toBe(1);
       expect((await s(sekreter.token).get('/komuta/ozet')).status).toBe(403);
     });

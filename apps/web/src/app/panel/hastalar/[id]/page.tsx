@@ -25,6 +25,7 @@ import { api, ApiHatasi, hataMesaji } from '@/lib/api';
 import { tarihBicimle, telefonBicimle, yasHesapla } from '@/lib/bicim';
 import { useOturum } from '@/lib/oturum';
 import { metin } from '@/metin';
+import { HesapKarti } from './HesapKarti';
 
 const m = metin.hastalar;
 const k = m.kart;
@@ -177,6 +178,8 @@ export default function HastaKartiSayfasi() {
         {veterinerVar && <HayvanlarKarti kart={kart} kaydedebilir={kaydedebilir} islem={islem} />}
 
         {(izinVar('tibbi.kayit.goruntule') || izinVar('tibbi.kayit.denetim')) && <MuayeneGecmisi hastaId={kart.id} />}
+
+        {(izinVar('finans.tahsilat') || izinVar('finans.goruntule')) && <HesapKarti hastaId={kart.id} />}
       </div>
     </>
   );

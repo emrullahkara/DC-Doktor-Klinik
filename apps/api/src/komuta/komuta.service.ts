@@ -29,7 +29,7 @@ export class KomutaService {
          WHERE (baslangic AT TIME ZONE ${KURUM_SAAT_DILIMI})::date = ${bugun} ${subeKosulu('sube_id')}`);
 
       const ciro = await tx.execute<{ gun: string; net: number }>(sql`
-        SELECT g.gun::text AS gun, coalesce(sum(t.tutar_kurus), 0)::bigint AS net
+        SELECT g.gun::date::text AS gun, coalesce(sum(t.tutar_kurus), 0)::bigint AS net
           FROM generate_series(${bugun} - 13, ${bugun}, interval '1 day') AS g(gun)
           LEFT JOIN tahsilatlar t ON t.kasa_gunu = g.gun::date ${subeKosulu('t.sube_id')}
          GROUP BY g.gun ORDER BY g.gun`);

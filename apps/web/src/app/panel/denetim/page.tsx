@@ -56,7 +56,7 @@ export default function DenetimSayfasi() {
             </thead>
             <tbody>
               {kayitlar.map((k) => {
-                const reddedildi = k.eylem.includes('reddedildi') || k.eylem.endsWith('basarisiz') || k.eylem === 'acil.erisim';
+                const reddedildi = k.eylem.includes('reddedildi') || k.eylem.endsWith('basarisiz') || k.eylem === 'acil.erisim' || k.eylem === 'kasa.kapandi.farkli';
                 return (
                   <tr key={k.id}>
                     <td style={{ whiteSpace: 'nowrap' }}>{new Date(k.zaman).toLocaleString('tr-TR')}</td>

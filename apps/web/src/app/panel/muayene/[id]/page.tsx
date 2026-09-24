@@ -272,16 +272,24 @@ function Tanilar({ tanilar, duzenlenebilir, degistir }: { tanilar: Tani[]; duzen
       setSonuclar([]);
       return;
     }
+    // Sorgu değişince (ör. seçimden sonra temizlenince) geç gelen yanıt listeyi yeniden açmasın
+    let gecersiz = false;
     const z = setTimeout(() => {
-      api<{ kod: string; ad: string }[]>(`/icd10?q=${encodeURIComponent(sorgu.trim())}`).then(setSonuclar).catch(() => setSonuclar([]));
+      api<{ kod: string; ad: string }[]>(`/icd10?q=${encodeURIComponent(sorgu.trim())}`)
+        .then((l) => !gecersiz && setSonuclar(l))
+        .catch(() => !gecersiz && setSonuclar([]));
     }, 250);
-    return () => clearTimeout(z);
+    return () => {
+      gecersiz = true;
+      clearTimeout(z);
+    };
   }, [sorgu, duzenlenebilir]);
 
   function ekle(t: { kod: string; ad: string }) {
     if (tanilar.some((x) => x.kod === t.kod)) return;
     degistir([...tanilar, { ...t, tur: 'kesin', birincil: tanilar.length === 0 }]);
     setSorgu('');
+    setSonuclar([]);
   }
 
   function kaldir(kod: string) {

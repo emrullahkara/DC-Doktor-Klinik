@@ -32,7 +32,7 @@ const MENU: MenuOgesi[] = [
   { ad: m.menu.klinik, ikon: ikon(<path d="M3 12h4l2-5 4 10 2-5h6" />) },
   { ad: m.menu.personel, ikon: ikon(<><circle cx="9" cy="8" r="3.5" /><path d="M2.5 20c1-3.5 3.5-5 6.5-5s5.5 1.5 6.5 5" /></>) },
   { ad: m.menu.stok, ikon: ikon(<><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z" /><path d="M4 7.5l8 4.5 8-4.5M12 12v9" /></>) },
-  { ad: m.menu.finans, ikon: ikon(<><rect x="3" y="6" width="18" height="13" rx="2" /><path d="M3 10h18M7 15h3" /></>) },
+  { ad: m.menu.finans, yol: '/panel/finans', izinler: ['finans.goruntule', 'finans.tahsilat', 'fiyat.yonet', 'fiyat.onayla'], ikon: ikon(<><rect x="3" y="6" width="18" height="13" rx="2" /><path d="M3 10h18M7 15h3" /></>) },
   { ad: m.menu.kalite, ikon: ikon(<path d="M12 3l8 3v6c0 4.5-3.5 8-8 9-4.5-1-8-4.5-8-9V6z" />) },
   { ad: m.menu.kullanicilar, yol: '/panel/kullanicilar', izinler: KULLANICI_LISTESI_IZINLERI, ikon: ikon(<><circle cx="12" cy="8" r="4" /><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" /><path d="M19 3l2 2-2 2" /></>) },
   { ad: m.menu.denetim, yol: '/panel/denetim', izinler: ['denetim.goruntule'], ikon: ikon(<><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V8a4 4 0 018 0v3" /></>) },
