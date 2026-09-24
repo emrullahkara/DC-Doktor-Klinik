@@ -1,8 +1,6 @@
 import { createHash } from 'node:crypto';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import {
-  ALARM_SIRASI,
-  alarmGorulebilirMi,
   type AlarmKapsami,
   type AlarmSeviyesi,
   belgeDurumu,
@@ -25,6 +23,7 @@ import { and, asc, desc, eq, isNull, sql } from 'drizzle-orm';
 import { belgeler, dosyalar, kullanicilar, personelBilgileri, rolAtamalari, subeler } from '../db/sema';
 import { type Islem, VeritabaniService } from '../db/veritabani.service';
 import { DenetimService } from '../denetim/denetim.service';
+import type { Alarm } from '../alarmlar/alarm';
 import { AlanSifrelemeService } from '../ortak/alan-sifreleme.service';
 import { ApiHatasi } from '../ortak/dogrulama';
 import type { Kimlik, YetkiBaglami } from '../yetki/baglam';
@@ -324,31 +323,16 @@ export class BelgelerService {
     });
   }
 
-  // ——— Alarm motoru ———
+  // ——— Alarm kaynağı ———
 
   /**
-   * İzleyene görünen alarmlar: süresi yaklaşan / geçmiş belgeler ve eksik zorunlu belgeler.
-   * Eskalasyon kuralı `alarmGorulebilirMi` (paylaşılan paket) ile uygulanır; şube seçiliyse kurum
-   * alarmları o şube ve işletme geneliyle sınırlanır.
+   * Belge kaynaklı alarmlar: süresi yaklaşan / geçmiş belgeler ve eksik zorunlu belgeler.
+   * Şube seçiliyse kurum alarmları o şube ve işletme geneliyle sınırlanır. Görünürlük
+   * süzmesi alarm motorunda (AlarmlarService) yapılır.
    */
-  async alarmlar(kimlik: Kimlik, yetki: YetkiBaglami) {
-    return this.db.kiraciIslemi(kimlik, async (tx) => {
-      const gun = await bugun(tx);
-      const izleyen = { kullaniciId: kimlik.kullaniciId, izinler: yetki.izinler };
-      const alarmlar: {
-        anahtar: string;
-        kapsam: AlarmKapsami;
-        seviye: AlarmSeviyesi;
-        tur: string;
-        turAd: string;
-        kullaniciId: string | null;
-        kisi: string | null;
-        subeId: string | null;
-        sube: string | null;
-        bitis: string | null;
-        kalanGun: number | null;
-        askiyaAliyor: boolean;
-      }[] = [];
+  async belgeAlarmlari(tx: Islem, gun: string, subeId: string | null): Promise<Alarm[]> {
+    {
+      const alarmlar: Alarm[] = [];
 
       const kisiler = await tx.select({ id: kullanicilar.id, adSoyad: kullanicilar.adSoyad, meslek: kullanicilar.meslek }).from(kullanicilar).where(eq(kullanicilar.aktif, true));
       const atamalar = await tx.select({ kullaniciId: rolAtamalari.kullaniciId, rolKodu: rolAtamalari.rolKodu }).from(rolAtamalari);
@@ -378,7 +362,7 @@ export class BelgelerService {
         if (d.seviye) alarmlar.push({ anahtar: `b:${b.id}`, kapsam: 'kurum', seviye: d.seviye, tur: b.tur, turAd: turAdi('kurum', b.tur), kullaniciId: null, kisi: null, subeId: null, sube: null, bitis: b.bitis, kalanGun: d.kalanGun, askiyaAliyor: false });
       }
       for (const s of tumSubeler) {
-        if (yetki.subeId && s.id !== yetki.subeId) continue;
+        if (subeId && s.id !== subeId) continue;
         const kendi = kurumBelgeleri.filter((b) => b.subeId === s.id);
         for (const b of guncelBelgeler(kendi).values()) {
           const d = belgeDurumu(b.bitis, gun, KURUM_UYARI_GUNLERI);
@@ -389,9 +373,7 @@ export class BelgelerService {
         }
       }
 
-      return alarmlar
-        .filter((a) => alarmGorulebilirMi(a, izleyen))
-        .sort((a, b) => ALARM_SIRASI[a.seviye] - ALARM_SIRASI[b.seviye] || (a.kalanGun ?? 0) - (b.kalanGun ?? 0) || a.turAd.localeCompare(b.turAd, 'tr'));
-    });
+      return alarmlar;
+    }
   }
 }

@@ -7,6 +7,7 @@ import { api } from '@/lib/api';
 import { KULLANICI_LISTESI_IZINLERI, useOturum } from '@/lib/oturum';
 import { metin } from '@/metin';
 import { Alarmlar } from './Alarmlar';
+import { Gorevlerim } from './Gorevlerim';
 
 const m = metin.panel.komuta;
 
@@ -45,6 +46,7 @@ export default function KomutaMerkezi() {
           <p className="ikincil" style={{ margin: 0 }}>{m.yetkisiz}</p>
         </div>
         <Alarmlar />
+        <Gorevlerim />
       </>
     );
   }
@@ -73,6 +75,7 @@ export default function KomutaMerkezi() {
 
       <Gostergeler />
       <Alarmlar />
+      <Gorevlerim />
     </>
   );
 }

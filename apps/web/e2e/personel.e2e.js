@@ -74,7 +74,7 @@ const gunSonra = (n) =>
   adim('hekim eklendi (mesul müdür + hekim)');
 
   // Personel listesi ve kart
-  await sayfa.getByRole('link', { name: 'Personel ve Nöbet' }).click();
+  await sayfa.getByRole('link', { name: 'Personel ve Belgeler' }).click();
   await sayfa.waitForURL('**/panel/personel');
   const hekimSatiri = sayfa.getByRole('row').filter({ hasText: 'Dr. Kaan Er' });
   await hekimSatiri.getByText(/\d+ eksik/).waitFor();

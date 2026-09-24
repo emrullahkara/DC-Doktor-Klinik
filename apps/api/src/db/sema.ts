@@ -350,3 +350,55 @@ export const belgeler = pgTable('belgeler', {
   kaldirmaZamani: timestamp('kaldirma_zamani', { withTimezone: true }),
   kaldirmaNedeni: text('kaldirma_nedeni'),
 });
+
+export const nobetAyarlari = pgTable('nobet_ayarlari', {
+  isletmeId: uuid('isletme_id').primaryKey(),
+  haftalikAzamiSaat: integer('haftalik_azami_saat').notNull(),
+  nobetSonrasiDinlenmeSaat: integer('nobet_sonrasi_dinlenme_saat').notNull(),
+  ardisikGeceAzami: integer('ardisik_gece_azami').notNull(),
+  guncelleyenId: uuid('guncelleyen_id').notNull(),
+  guncellemeZamani: timestamp('guncelleme_zamani', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const cizelgeler = pgTable('cizelgeler', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  isletmeId: uuid('isletme_id').notNull(),
+  subeId: uuid('sube_id').notNull(),
+  ay: text('ay').notNull(),
+  durum: text('durum').notNull().default('taslak'),
+  hazirlayanId: uuid('hazirlayan_id').notNull(),
+  onayaGonderenId: uuid('onaya_gonderen_id'),
+  onaylayanId: uuid('onaylayan_id'),
+  onayZamani: timestamp('onay_zamani', { withTimezone: true }),
+  ihlalGerekcesi: text('ihlal_gerekcesi'),
+  redNedeni: text('red_nedeni'),
+  olusturmaZamani: timestamp('olusturma_zamani', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const gorevler = pgTable('gorevler', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  isletmeId: uuid('isletme_id').notNull(),
+  cizelgeId: uuid('cizelge_id').notNull(),
+  subeId: uuid('sube_id').notNull(),
+  kullaniciId: uuid('kullanici_id').notNull(),
+  tur: text('tur').notNull(),
+  baslangic: timestamp('baslangic', { withTimezone: true }).notNull(),
+  bitis: timestamp('bitis', { withTimezone: true }).notNull(),
+  notu: text('notu').notNull().default(''),
+  ekleyenId: uuid('ekleyen_id').notNull(),
+  zaman: timestamp('zaman', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const personelIzinleri = pgTable('personel_izinleri', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  isletmeId: uuid('isletme_id').notNull(),
+  kullaniciId: uuid('kullanici_id').notNull(),
+  tur: text('tur').notNull(),
+  baslangic: date('baslangic', { mode: 'string' }).notNull(),
+  bitis: date('bitis', { mode: 'string' }).notNull(),
+  aciklama: text('aciklama').notNull().default(''),
+  ekleyenId: uuid('ekleyen_id').notNull(),
+  zaman: timestamp('zaman', { withTimezone: true }).notNull().defaultNow(),
+  iptalEdenId: uuid('iptal_eden_id'),
+  iptalZamani: timestamp('iptal_zamani', { withTimezone: true }),
+});

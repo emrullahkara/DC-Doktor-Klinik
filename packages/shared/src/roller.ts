@@ -31,7 +31,7 @@ export const ROLLER = {
     izinler: [
       'komuta.goruntule', 'tibbi.istatistik.anonim', 'hasta.demografik.goruntule', 'randevu.goruntule',
       'randevu.yonet', 'finans.goruntule', 'finans.iade.onayla', 'fiyat.yonet', 'stok.goruntule',
-      'personel.goruntule', 'personel.yonet', 'belge.kurum.yonet', 'nobet.onayla', 'kullanici.yonet', 'denetim.goruntule',
+      'personel.goruntule', 'personel.yonet', 'belge.kurum.yonet', 'nobet.planla', 'nobet.onayla', 'kullanici.yonet', 'denetim.goruntule',
       'ayar.yonet', 'olay.bildir',
     ],
   },
@@ -53,7 +53,7 @@ export const ROLLER = {
     izinler: [
       'komuta.goruntule', 'tibbi.istatistik.anonim', 'hasta.demografik.goruntule', 'hasta.kaydet',
       'tibbi.kayit.goruntule', 'tibbi.kayit.yaz', 'tibbi.kayit.denetim', 'tani.koy', 'recete.yaz',
-      'rapor.yaz', 'onam.al', 'randevu.goruntule', 'randevu.yonet', 'personel.goruntule', 'nobet.onayla',
+      'rapor.yaz', 'onam.al', 'randevu.goruntule', 'randevu.yonet', 'personel.goruntule', 'nobet.planla', 'nobet.onayla',
       'kalite.yonet', 'olay.bildir',
     ],
   },
@@ -115,7 +115,7 @@ export const ROLLER = {
   insan_kaynaklari: {
     ad: 'İnsan kaynakları',
     aciklama: 'Özlük, sözleşme, izin, belge takibi.',
-    izinler: ['personel.goruntule', 'personel.yonet', 'olay.bildir'],
+    izinler: ['personel.goruntule', 'personel.yonet', 'nobet.planla', 'olay.bildir'],
   },
   kalite_sorumlusu: {
     ad: 'Kalite sorumlusu',

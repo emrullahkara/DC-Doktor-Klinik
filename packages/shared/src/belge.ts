@@ -175,7 +175,7 @@ export function askidakiIzinler(belgeler: readonly GuncelBelge[], bugun: string)
   return sonuc;
 }
 
-export type AlarmKapsami = 'personel' | 'kurum';
+export type AlarmKapsami = 'personel' | 'kurum' | 'nobet' | 'stok' | 'kalite';
 
 /**
  * Eskalasyon: alarmı kim görür?
@@ -185,9 +185,14 @@ export type AlarmKapsami = 'personel' | 'kurum';
  *    ciddi ve kritik olanları.
  */
 export function alarmGorulebilirMi(
-  alarm: { kapsam: AlarmKapsami; seviye: AlarmSeviyesi; kullaniciId?: string | null },
+  alarm: { kapsam: AlarmKapsami; seviye: AlarmSeviyesi; kullaniciId?: string | null; hedefIzinler?: readonly Izin[] },
   izleyen: { kullaniciId: string; izinler: ReadonlySet<Izin> },
 ): boolean {
+  // Nöbet, stok ve kalite alarmları işin sorumlusuna (hedef izin) gider; kritikler Komuta Merkezi'ne de çıkar
+  if (alarm.kapsam === 'nobet' || alarm.kapsam === 'stok' || alarm.kapsam === 'kalite') {
+    if (alarm.hedefIzinler?.some((i) => izleyen.izinler.has(i))) return true;
+    return alarm.seviye === 'kritik' && izleyen.izinler.has('komuta.goruntule');
+  }
   if (alarm.kapsam === 'personel') {
     if (alarm.kullaniciId === izleyen.kullaniciId) return true;
     if (izleyen.izinler.has('personel.yonet')) return true;

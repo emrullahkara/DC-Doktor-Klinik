@@ -18,6 +18,7 @@ import { api, ApiHatasi, hataMesaji } from '@/lib/api';
 import { tarihBicimle, telefonBicimle } from '@/lib/bicim';
 import { useOturum } from '@/lib/oturum';
 import { metin } from '@/metin';
+import { Izinler } from './Izinler';
 
 const m = metin.personel;
 
@@ -114,7 +115,10 @@ export default function PersonelKarti() {
           )}
         </section>
 
-        <Ozluk id={k.id} bilgi={kart.bilgi} yonetebilir={yonetebilir} kaydedildi={() => void yukle()} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20, flex: '1 1 300px', minWidth: 0 }}>
+          <Ozluk id={k.id} bilgi={kart.bilgi} yonetebilir={yonetebilir} kaydedildi={() => void yukle()} />
+          <Izinler kullaniciId={k.id} yonetebilir={yonetebilir} />
+        </div>
       </div>
     </>
   );

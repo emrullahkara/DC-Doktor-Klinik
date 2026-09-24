@@ -69,10 +69,4 @@ export class BelgelerController {
   kurum(@KimlikBilgisi() kimlik: Kimlik) {
     return this.belgeler.kurumBelgeleri(kimlik);
   }
-
-  /** Her kullanıcı kendi görebileceği alarmları alır (eskalasyon kuralı serviste). */
-  @Get('alarmlar')
-  alarmlar(@KimlikBilgisi() kimlik: Kimlik, @Yetki() yetki: YetkiBaglami) {
-    return this.belgeler.alarmlar(kimlik, yetki);
-  }
 }

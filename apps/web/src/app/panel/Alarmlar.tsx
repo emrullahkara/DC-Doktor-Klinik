@@ -1,6 +1,6 @@
 'use client';
 
-import type { AlarmSeviyesi } from '@dc/shared';
+import type { AlarmKapsami, AlarmSeviyesi } from '@dc/shared';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
@@ -12,7 +12,9 @@ const ILK_GOSTERIM = 6;
 
 interface Alarm {
   anahtar: string;
-  kapsam: 'personel' | 'kurum';
+  kapsam: AlarmKapsami;
+  tur: string;
+  ek?: Record<string, string | number>;
   seviye: AlarmSeviyesi;
   turAd: string;
   kullaniciId: string | null;
@@ -49,7 +51,27 @@ function grupla(liste: Alarm[]): Satir[] {
   return sonuc;
 }
 
+const ayAdi = (ay: string) => new Date(`${ay}-15T12:00:00+03:00`).toLocaleDateString('tr-TR', { month: 'long', year: 'numeric', timeZone: 'Europe/Istanbul' });
+
+/** Alarmın bağlantısı ve başlığı (kişi, şube …) */
+function hedef(a: Satir, benId: string): { yol: string; kim: string } {
+  switch (a.kapsam) {
+    case 'personel':
+      return { yol: `/panel/personel/${a.kullaniciId}`, kim: a.kullaniciId === benId ? metin.personel.kendiKartim : a.kisi ?? '' };
+    case 'kurum':
+      return { yol: '/panel/belgeler', kim: a.sube ?? metin.kurumBelgeleri.tumIsletme };
+    case 'nobet':
+      return { yol: '/panel/nobet', kim: a.sube ?? '' };
+    case 'stok':
+      return { yol: '/panel/stok', kim: a.sube ?? '' };
+    case 'kalite':
+      return { yol: '/panel/kalite', kim: a.sube ?? metin.kurumBelgeleri.tumIsletme };
+  }
+}
+
 function alarmMetni(a: Satir): string {
+  if (a.kapsam === 'nobet') return a.tur === 'cizelge_onay' ? m.cizelgeOnay(ayAdi(String(a.ek?.ay))) : m.cizelgeYok(ayAdi(String(a.ek?.ay)), a.kalanGun ?? 0);
+  if (a.kapsam === 'stok' || a.kapsam === 'kalite') return String(a.ek?.metin ?? a.turAd);
   if (a.eksikTurler && a.eksikTurler.length > 1) return m.eksikBelgeler(a.eksikTurler.length, a.eksikTurler.join(', '));
   if (a.seviye === 'eksik') return m.eksikBelge(a.turAd);
   if ((a.kalanGun ?? 0) < 0) return m.dolmus(a.turAd, -(a.kalanGun ?? 0));
@@ -84,8 +106,7 @@ export function Alarmlar() {
       ) : (
         <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
           {gosterilen.map((a) => {
-            const yol = a.kapsam === 'kurum' ? '/panel/belgeler' : `/panel/personel/${a.kullaniciId}`;
-            const kim = a.kapsam === 'kurum' ? a.sube ?? metin.kurumBelgeleri.tumIsletme : a.kullaniciId === ben.kullanici.id ? metin.personel.kendiKartim : a.kisi;
+            const { yol, kim } = hedef(a, ben.kullanici.id);
             return (
               <li key={a.anahtar} style={{ display: 'flex', gap: 10, alignItems: 'center', padding: '8px 0', borderBottom: '1px solid var(--cizgi-acik)', flexWrap: 'wrap' }}>
                 <span className={SINIF[a.seviye]} style={{ minWidth: 60, justifyContent: 'center' }}>{m.seviye[a.seviye]}</span>

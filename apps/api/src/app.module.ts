@@ -1,6 +1,8 @@
 import { type DynamicModule, Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
+import { AlarmlarController } from './alarmlar/alarmlar.controller';
+import { AlarmlarService } from './alarmlar/alarmlar.service';
 import { AYARLAR, type Ayarlar } from './ayarlar';
 import { BelgelerController } from './belgeler/belgeler.controller';
 import { BelgelerService } from './belgeler/belgeler.service';
@@ -18,6 +20,8 @@ import { KimlikService } from './kimlik/kimlik.service';
 import { KullanicilarController } from './kullanicilar/kullanicilar.controller';
 import { KullanicilarService } from './kullanicilar/kullanicilar.service';
 import { KurumTipleriController } from './kurum-tipleri/kurum-tipleri.controller';
+import { NobetController } from './nobet/nobet.controller';
+import { NobetService } from './nobet/nobet.service';
 import { MuayenelerController } from './muayeneler/muayeneler.controller';
 import { MuayenelerService } from './muayeneler/muayeneler.service';
 import { AlanSifrelemeService } from './ortak/alan-sifreleme.service';
@@ -32,7 +36,7 @@ export class AppModule {
     return {
       module: AppModule,
       imports: [JwtModule.register({ secret: ayarlar.jwtGizli, signOptions: { expiresIn: '8h' } })],
-      controllers: [KimlikController, KullanicilarController, KurumTipleriController, DenetimController, HastalarController, RandevularController, MuayenelerController, FinansController, KomutaController, BelgelerController],
+      controllers: [KimlikController, KullanicilarController, KurumTipleriController, DenetimController, HastalarController, RandevularController, MuayenelerController, FinansController, KomutaController, BelgelerController, NobetController, AlarmlarController],
       providers: [
         { provide: AYARLAR, useValue: ayarlar },
         VeritabaniService,
@@ -47,6 +51,8 @@ export class AppModule {
         FinansService,
         KomutaService,
         BelgelerService,
+        NobetService,
+        AlarmlarService,
         { provide: APP_GUARD, useClass: ErisimGuard },
       ],
     };

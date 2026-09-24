@@ -1,0 +1,17 @@
+.izgara { border-collapse: separate; border-spacing: 0; font-size: 13px; }
+.izgara th, .izgara td { border-bottom: 1px solid var(--cizgi-acik); border-right: 1px solid var(--cizgi-acik); padding: 0; }
+.izgara thead th { font-size: 11px; font-weight: 600; color: var(--ikincil); padding: 6px 2px; text-align: center; min-width: 46px; background: var(--beyaz); }
+.haftaSonu { background: #faf8f3; }
+.kisiHucre { position: sticky; left: 0; z-index: 1; background: var(--beyaz); padding: 8px 12px !important; min-width: 170px; max-width: 200px; text-align: left; font-weight: 600; }
+.kisiHucre span { display: block; font-weight: 400; font-size: 12px; color: var(--ikincil); }
+.hucre { width: 100%; min-height: 52px; min-width: 46px; border: none; background: transparent; cursor: pointer; display: flex; flex-direction: column; align-items: stretch; gap: 2px; padding: 3px; font: inherit; }
+.hucre:hover { background: var(--nane-acik); }
+.hucreSecili { outline: 3px solid var(--mercan); outline-offset: -3px; }
+.cip { display: block; border-radius: 6px; padding: 2px 3px; font-size: 11px; font-weight: 600; line-height: 1.25; text-align: center; white-space: nowrap; }
+.vardiya { background: var(--nane); color: var(--petrol-koyu); }
+.nobet { background: var(--petrol); color: #fff; }
+.icap { background: #fff; color: var(--petrol); border: 1.5px dashed var(--petrol); }
+.izin { background: #ece9e1; color: var(--ikincil); }
+.ihlalli { box-shadow: 0 0 0 2px var(--kritik); }
+.lejant { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; font-size: 13px; color: var(--ikincil); }
+.lejant .cip { display: inline-block; min-width: 24px; }
