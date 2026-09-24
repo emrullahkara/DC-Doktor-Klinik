@@ -31,6 +31,7 @@ Tasarımın temel iddiası şudur: **Kliniğin sahibi hekim olmasa, kliniğe hi�
 | 10 | [Karar Bekleyen Konular](docs/10-karar-bekleyen-konular.md) | Bir sonraki görüşmede netleştirilecek sorular |
 | 11 | [Alınan Kararlar](docs/11-alinan-kararlar.md) | İş modeli, kurum tipi profili motoru, SaaS katmanı, çok dil |
 | 12 | [Marka Kılavuzu](docs/12-marka-kilavuzu.md) | Logo, renkler, yazı tipleri, arayüz dili |
+| 13 | [Ekran Taslakları](docs/13-ekran-taslaklari.md) | Onaylanan ana ekranlar ve bağlantıları |
 
 ## Önemli Not
 
