@@ -21,7 +21,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { type FormEvent, type ReactNode, useCallback, useEffect, useState } from 'react';
 import { Alan } from '@/bilesenler/Alan';
-import { api, hataMesaji } from '@/lib/api';
+import { api, ApiHatasi, hataMesaji } from '@/lib/api';
 import { tarihBicimle, telefonBicimle, yasHesapla } from '@/lib/bicim';
 import { useOturum } from '@/lib/oturum';
 import { metin } from '@/metin';
@@ -175,6 +175,8 @@ export default function HastaKartiSayfasi() {
         <KvkkKarti kart={kart} kaydedebilir={kaydedebilir} islem={islem} />
 
         {veterinerVar && <HayvanlarKarti kart={kart} kaydedebilir={kaydedebilir} islem={islem} />}
+
+        {(izinVar('tibbi.kayit.goruntule') || izinVar('tibbi.kayit.denetim')) && <MuayeneGecmisi hastaId={kart.id} />}
       </div>
     </>
   );
@@ -357,6 +359,86 @@ function HayvanlarKarti({ kart, kaydedebilir, islem }: { kart: HastaKarti; kayde
             <button type="button" className="dugme dugme-sade dugme-kucuk" onClick={() => setAcik(false)}>{metin.genel.vazgec}</button>
           </div>
         </form>
+      )}
+    </Kart>
+  );
+}
+
+interface GecmisMuayene {
+  id: string;
+  tarih: string;
+  durum: 'taslak' | 'imzali';
+  hekimAd: string;
+  subeAd: string;
+  tanilar: { kod: string; ad: string }[];
+}
+
+/** Muayene geçmişi: tedavi ilişkisi yoksa gerekçeli acil erişim formu gösterilir. */
+function MuayeneGecmisi({ hastaId }: { hastaId: string }) {
+  const mm = metin.muayene;
+  const [durum, setDurum] = useState<{ liste: GecmisMuayene[]; neden: string } | 'iliski-yok' | null>(null);
+  const [hata, setHata] = useState<string | null>(null);
+  const [gerekce, setGerekce] = useState('acil_mudahale');
+  const [aciklama, setAciklama] = useState('');
+
+  const yukle = useCallback(async () => {
+    try {
+      const r = await api<{ erisimNedeni: string; muayeneler: GecmisMuayene[] }>(`/hastalar/${hastaId}/muayeneler`);
+      setDurum({ liste: r.muayeneler, neden: r.erisimNedeni });
+    } catch (h) {
+      if (h instanceof ApiHatasi && h.kod === 'TEDAVI_ILISKISI_YOK') setDurum('iliski-yok');
+      else setHata(hataMesaji(h));
+    }
+  }, [hastaId]);
+
+  useEffect(() => {
+    void yukle();
+  }, [yukle]);
+
+  async function acilErisim(olay: FormEvent) {
+    olay.preventDefault();
+    setHata(null);
+    try {
+      await api(`/hastalar/${hastaId}/acil-erisim`, { yontem: 'POST', govde: { gerekce, aciklama } });
+      await yukle();
+    } catch (h) {
+      setHata(hataMesaji(h));
+    }
+  }
+
+  return (
+    <Kart baslik={mm.gecmis}>
+      {hata && <div className="kutu kutu-hata" role="alert">{hata}</div>}
+      {durum === null && !hata && <span className="ikincil">{metin.genel.yukleniyor}</span>}
+      {durum === 'iliski-yok' && (
+        <form onSubmit={acilErisim} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div className="kutu kutu-uyari">{mm.tedaviIliskisiYok}</div>
+          <Alan etiket={mm.gerekce}>
+            <select value={gerekce} onChange={(e) => setGerekce(e.target.value)}>
+              {Object.entries(mm.gerekceler).map(([k, a]) => <option key={k} value={k}>{a}</option>)}
+            </select>
+          </Alan>
+          <Alan etiket={mm.gerekceAciklama}><input value={aciklama} onChange={(e) => setAciklama(e.target.value)} minLength={10} maxLength={500} required /></Alan>
+          <div><button type="submit" className="dugme dugme-sade dugme-kucuk" disabled={aciklama.trim().length < 10}>{mm.acilErisim}</button></div>
+        </form>
+      )}
+      {durum && durum !== 'iliski-yok' && (
+        <>
+          <span className="kucuk ikincil">{mm.erisimNotu(mm.erisimNedenleri[durum.neden] ?? durum.neden)}</span>
+          {durum.liste.length === 0 ? (
+            <span className="ikincil">{mm.gecmisYok}</span>
+          ) : (
+            <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+              {durum.liste.map((x) => (
+                <li key={x.id} style={{ padding: '8px 0', borderBottom: '1px solid var(--cizgi-acik)' }}>
+                  <Link href={`/panel/muayene/${x.id}`} style={{ fontWeight: 600 }}>{tarihBicimle(x.tarih)}</Link>
+                  <span className="kucuk ikincil"> · {x.hekimAd} · {x.subeAd} · {x.durum === 'imzali' ? 'İmzalı' : 'Taslak'}</span>
+                  <span className="kucuk" style={{ display: 'block' }}>{x.tanilar.map((t) => `${t.kod} ${t.ad}`).join(' · ')}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
       )}
     </Kart>
   );

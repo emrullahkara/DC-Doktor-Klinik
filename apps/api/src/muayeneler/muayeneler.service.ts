@@ -45,16 +45,17 @@ export class MuayenelerService {
   ) {}
 
   /**
-   * Tedavi ilişkisi kuralı: tıbbi kayda kim, hangi gerekçeyle erişebilir?
-   *  - denetim: kurumsal denetim yetkisi (başhekim, mesul müdür)
+   * Tedavi ilişkisi kuralı: tıbbi kayda kim, hangi gerekçeyle erişebilir? Denetim izine en somut
+   * gerekçe yazılsın diye sırayla bakılır:
    *  - tedavi:  hekimin bu hastayla son bir yıl içinde veya ileri tarihli randevusu ya da muayenesi var
    *  - randevu: hekim olmayan sağlık personeli (hemşire, tekniker…); hastanın bugün bu şubede randevusu var.
    *            Hekimler bu genişlikten yararlanmaz: yalnızca kendi hastalarını görürler.
    *  - acil:    süresi dolmamış gerekçeli acil erişim kaydı
+   *  - denetim: kurumsal denetim yetkisi (başhekim, mesul müdür)
    */
   async erisimNedeni(tx: Islem, kimlik: Kimlik, yetki: YetkiBaglami, kisiId: string): Promise<ErisimNedeni | null> {
-    if (yetki.izinler.has('tibbi.kayit.denetim')) return 'denetim';
-    if (!yetki.izinler.has('tibbi.kayit.goruntule')) return null;
+    const denetim = yetki.izinler.has('tibbi.kayit.denetim');
+    if (!yetki.izinler.has('tibbi.kayit.goruntule')) return denetim ? 'denetim' : null;
 
     if (yetki.izinler.has('tani.koy')) {
       const [randevu] = await tx
@@ -85,7 +86,8 @@ export class MuayenelerService {
       .from(acilErisimler)
       .where(and(eq(acilErisimler.kullaniciId, kimlik.kullaniciId), eq(acilErisimler.kisiId, kisiId), gt(acilErisimler.bitis, sql`now()`)))
       .limit(1);
-    return acil ? 'acil' : null;
+    if (acil) return 'acil';
+    return denetim ? 'denetim' : null;
   }
 
   private async erisimGerekli(tx: Islem, kimlik: Kimlik, yetki: YetkiBaglami, kisiId: string): Promise<ErisimNedeni> {

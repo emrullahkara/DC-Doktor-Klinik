@@ -58,7 +58,7 @@ pnpm test                # tüm testler (API testleri dc_klinik_test veritabanı
 | `packages/shared` | Meslekler, izin kataloğu, rol kataloğu, kilitli yasal yetki kuralları, kurum tipi profilleri |
 | `apps/api` | NestJS API: kurum kaydı, giriş, rol atama, yetki denetimi, denetim izi |
 | `apps/web` | Next.js web arayüzü: giriş, kayıt sihirbazı, Komuta Merkezi, kullanıcılar ve yetkiler, denetim izi |
-| `apps/web/e2e` | Tarayıcıda uçtan uca akış testleri (Playwright): kurum/yetki, hasta ve randevu akışları |
+| `apps/web/e2e` | Tarayıcıda uçtan uca akış testleri (Playwright): kurum/yetki, hasta, randevu ve muayene akışları |
 | `apps/api/migrations` | Veritabanı şeması (SQL); satır düzeyi güvenlik ile kiracı izolasyonu |
 
 ### API (v1) — şu an hazır olanlar
@@ -73,4 +73,5 @@ pnpm test                # tüm testler (API testleri dc_klinik_test veritabanı
 | `GET/POST /hastalar` · `GET/PATCH /hastalar/:id` | Hasta arama (Türkçe karakterden bağımsız), kayıt (KVKK aydınlatma zorunlu, mükerrer önleme), kart |
 | `GET /hastalar/:id/kimlik-no` · `POST /hastalar/:id/rizalar` · `…/uyarilar` · `…/hayvanlar` | Açık kimlik no (kayıtlı), rıza verme/geri çekme, role göre görünen uyarılar, hayvan kaydı |
 | `GET/POST /kaynaklar` · `GET /randevular/takvim` · `POST /randevular` · `…/:id/durum` · `…/:id/tasi` | Oda/cihaz, günlük takvim, çakışmasız randevu, kabul (sıra no), muayene, iptal, taşıma |
+| `POST /muayeneler` · `GET/PATCH /muayeneler/:id` · `…/imzala` · `…/ek-not` · `GET /hastalar/:id/muayeneler` · `POST /hastalar/:id/acil-erisim` · `GET /icd10` | Muayene kaydı (tedavi ilişkisi şartı), parolalı imza ve kilit, ek not, geçmiş, gerekçeli acil erişim, ICD-10 arama |
 | `GET /denetim-izi` | Hash zincirli, değiştirilemez erişim ve işlem kayıtları |

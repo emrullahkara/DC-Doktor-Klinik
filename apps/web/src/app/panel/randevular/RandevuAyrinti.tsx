@@ -2,6 +2,7 @@
 
 import { DURUM_GECISLERI, DURUM_IZINLERI, RANDEVU_DURUMLARI, RANDEVU_TURLERI, type RandevuDurumu } from '@dc/shared';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Alan } from '@/bilesenler/Alan';
 import { api, hataMesaji } from '@/lib/api';
@@ -21,6 +22,7 @@ interface Props {
 
 export function RandevuAyrinti({ randevu: r, takvim, kapat, degisti }: Props) {
   const { izinVar } = useOturum();
+  const router = useRouter();
   const [hata, setHata] = useState<string | null>(null);
   const [iptalAcik, setIptalAcik] = useState(false);
   const [neden, setNeden] = useState('');
@@ -81,7 +83,27 @@ export function RandevuAyrinti({ randevu: r, takvim, kapat, degisti }: Props) {
           </>
         )}
       </dl>
-      <Link href={`/panel/hastalar/${r.hasta.id}`} className="kucuk">{m.hastaKarti}</Link>
+      <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+        <Link href={`/panel/hastalar/${r.hasta.id}`} className="kucuk">{m.hastaKarti}</Link>
+        {izinVar('tibbi.kayit.yaz') && ['geldi', 'muayenede', 'tamamlandi'].includes(r.durum) && (
+          <button
+            type="button"
+            className="dugme dugme-ikincil dugme-kucuk"
+            disabled={calisiyor}
+            onClick={async () => {
+              setHata(null);
+              try {
+                const { id } = await api<{ id: string }>('/muayeneler', { yontem: 'POST', govde: { randevuId: r.id } });
+                router.push(`/panel/muayene/${id}`);
+              } catch (h) {
+                setHata(hataMesaji(h));
+              }
+            }}
+          >
+            {metin.muayene.ac}
+          </button>
+        )}
+      </div>
 
       {hata && <div className="kutu kutu-hata" role="alert">{hata}</div>}
 
