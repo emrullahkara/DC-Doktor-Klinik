@@ -14,10 +14,27 @@ const SURUM = 'v1';
 export class AlanSifrelemeService {
   private readonly sifreAnahtari: Buffer;
   private readonly ozetAnahtari: Buffer;
+  private readonly dosyaAnahtari: Buffer;
 
   constructor(@Inject(AYARLAR) ayarlar: Ayarlar) {
     this.sifreAnahtari = Buffer.from(hkdfSync('sha256', ayarlar.alanAnahtari, Buffer.alloc(0), 'dc-alan-sifreleme', 32));
     this.ozetAnahtari = Buffer.from(hkdfSync('sha256', ayarlar.alanAnahtari, Buffer.alloc(0), 'dc-kor-indeks', 32));
+    this.dosyaAnahtari = Buffer.from(hkdfSync('sha256', ayarlar.alanAnahtari, Buffer.alloc(0), 'dc-dosya-sifreleme', 32));
+  }
+
+  /** Dosya içeriği: [1 bayt sürüm][12 bayt IV][16 bayt etiket][şifreli içerik] */
+  dosyaSifrele(acik: Buffer): Buffer {
+    const iv = randomBytes(12);
+    const sifreleyici = createCipheriv('aes-256-gcm', this.dosyaAnahtari, iv);
+    const sifreli = Buffer.concat([sifreleyici.update(acik), sifreleyici.final()]);
+    return Buffer.concat([Buffer.from([1]), iv, sifreleyici.getAuthTag(), sifreli]);
+  }
+
+  dosyaCoz(veri: Buffer): Buffer {
+    if (veri[0] !== 1) throw new Error('Desteklenmeyen dosya şifreleme sürümü');
+    const cozucu = createDecipheriv('aes-256-gcm', this.dosyaAnahtari, veri.subarray(1, 13));
+    cozucu.setAuthTag(veri.subarray(13, 29));
+    return Buffer.concat([cozucu.update(veri.subarray(29)), cozucu.final()]);
   }
 
   sifrele(acik: string): string {

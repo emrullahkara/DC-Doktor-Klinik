@@ -6,6 +6,7 @@ import { KURUM_SAAT_DILIMI, kurusBicimle } from '@dc/shared';
 import { api } from '@/lib/api';
 import { KULLANICI_LISTESI_IZINLERI, useOturum } from '@/lib/oturum';
 import { metin } from '@/metin';
+import { Alarmlar } from './Alarmlar';
 
 const m = metin.panel.komuta;
 
@@ -43,6 +44,7 @@ export default function KomutaMerkezi() {
           </div>
           <p className="ikincil" style={{ margin: 0 }}>{m.yetkisiz}</p>
         </div>
+        <Alarmlar />
       </>
     );
   }
@@ -70,6 +72,7 @@ export default function KomutaMerkezi() {
       </section>
 
       <Gostergeler />
+      <Alarmlar />
     </>
   );
 }
@@ -120,6 +123,7 @@ function CiroGrafigi({ seri, tumSubeler }: { seri: { gun: string; netKurus: numb
   const cubuk = Math.min(28, adim - 8);
   const yuk = (v: number) => (Math.max(0, v) / enBuyuk) * (Y - ALT - UST);
   const secili = odak != null ? seri[odak] : undefined;
+  const bos = seri.every((s) => s.netKurus === 0);
 
   return (
     <section className="kart" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -128,11 +132,15 @@ function CiroGrafigi({ seri, tumSubeler }: { seri: { gun: string; netKurus: numb
           <h2>{m.ciroGrafik}</h2>
           <span className="kucuk ikincil">{m.ciroGrafikAlt}{tumSubeler ? ` · ${m.tumSubelerNotu}` : ''}</span>
         </div>
-        <button type="button" className="dugme dugme-ikincil" onClick={() => setTablo((t) => !t)} aria-pressed={tablo}>
-          {m.tabloGoster}
-        </button>
+        {!bos && (
+          <button type="button" className="dugme dugme-ikincil" onClick={() => setTablo((t) => !t)} aria-pressed={tablo}>
+            {m.tabloGoster}
+          </button>
+        )}
       </div>
-      {tablo ? (
+      {bos ? (
+        <p className="ikincil" style={{ margin: 0 }}>{m.ciroYok}</p>
+      ) : tablo ? (
         <table className="tablo">
           <thead><tr><th scope="col">{m.gun}</th><th scope="col" style={{ textAlign: 'right' }}>{m.tutar}</th></tr></thead>
           <tbody>
@@ -194,6 +202,15 @@ function Kurulum() {
   const kullaniciYonetimi = KULLANICI_LISTESI_IZINLERI.some(izinVar);
   const fiyatYonetimi = izinVar('fiyat.yonet') || izinVar('fiyat.onayla');
   const [hizmetVar, setHizmetVar] = useState(false);
+  const belgeGorur = izinVar('belge.kurum.yonet') || izinVar('komuta.goruntule');
+  const [belgeEksik, setBelgeEksik] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!belgeGorur) return;
+    api<{ subeler: { eksikler: string[] }[] }>('/kurum-belgeleri')
+      .then((v) => setBelgeEksik(v.subeler.reduce((t, s) => t + s.eksikler.length, 0)))
+      .catch(() => undefined);
+  }, [belgeGorur]);
 
   useEffect(() => {
     if (!fiyatYonetimi) return;
@@ -216,7 +233,7 @@ function Kurulum() {
     { ad: mesulVar ? m.adimMesulTamam : m.adimMesul, tamam: mesulVar === true, yol: '/panel/kullanicilar', izinli: kullaniciYonetimi },
     { ad: m.adimEkip, tamam: (kullaniciSayisi ?? 0) > 1, yol: '/panel/kullanicilar', izinli: kullaniciYonetimi },
     { ad: m.adimFiyat, tamam: hizmetVar, yol: '/panel/finans', izinli: fiyatYonetimi },
-    { ad: m.adimBelge, tamam: false, yol: undefined, izinli: false },
+    { ad: m.adimBelge, tamam: belgeEksik === 0, yol: '/panel/belgeler', izinli: belgeGorur },
   ];
 
   return (

@@ -2,6 +2,8 @@ import { type DynamicModule, Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { AYARLAR, type Ayarlar } from './ayarlar';
+import { BelgelerController } from './belgeler/belgeler.controller';
+import { BelgelerService } from './belgeler/belgeler.service';
 import { VeritabaniService } from './db/veritabani.service';
 import { DenetimController } from './denetim/denetim.controller';
 import { DenetimService } from './denetim/denetim.service';
@@ -30,7 +32,7 @@ export class AppModule {
     return {
       module: AppModule,
       imports: [JwtModule.register({ secret: ayarlar.jwtGizli, signOptions: { expiresIn: '8h' } })],
-      controllers: [KimlikController, KullanicilarController, KurumTipleriController, DenetimController, HastalarController, RandevularController, MuayenelerController, FinansController, KomutaController],
+      controllers: [KimlikController, KullanicilarController, KurumTipleriController, DenetimController, HastalarController, RandevularController, MuayenelerController, FinansController, KomutaController, BelgelerController],
       providers: [
         { provide: AYARLAR, useValue: ayarlar },
         VeritabaniService,
@@ -44,6 +46,7 @@ export class AppModule {
         MuayenelerService,
         FinansService,
         KomutaService,
+        BelgelerService,
         { provide: APP_GUARD, useClass: ErisimGuard },
       ],
     };

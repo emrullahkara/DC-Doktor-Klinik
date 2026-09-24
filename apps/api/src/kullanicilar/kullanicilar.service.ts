@@ -39,6 +39,7 @@ export class KullanicilarService {
         roller: roller.map((r) => ({ ...r, ad: rolKoduMu(r.rolKodu) ? ROLLER[r.rolKodu].ad : r.rolKodu })),
         subeBaglami: yetki.subeId,
         izinler: [...yetki.izinler].sort(),
+        askidakiIzinler: yetki.askilar,
       };
     });
   }

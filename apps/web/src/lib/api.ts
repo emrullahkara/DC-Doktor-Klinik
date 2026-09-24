@@ -37,7 +37,8 @@ export function seciliSubeAyarla(id: string | null): void {
  */
 export async function api<T>(yol: string, { yontem = 'GET', govde, subeId }: Secenekler = {}): Promise<T> {
   const basliklar: Record<string, string> = {};
-  if (govde !== undefined) basliklar['content-type'] = 'application/json';
+  const formMu = govde instanceof FormData;
+  if (govde !== undefined && !formMu) basliklar['content-type'] = 'application/json';
   const sube = subeId === undefined ? seciliSube : subeId;
   if (sube) basliklar['x-sube-id'] = sube;
 
@@ -46,7 +47,7 @@ export async function api<T>(yol: string, { yontem = 'GET', govde, subeId }: Sec
     yanit = await fetch(`/api/v1${yol}`, {
       method: yontem,
       headers: basliklar,
-      body: govde === undefined ? undefined : JSON.stringify(govde),
+      body: govde === undefined ? undefined : formMu ? govde : JSON.stringify(govde),
       credentials: 'same-origin',
       cache: 'no-store',
     });
@@ -62,6 +63,25 @@ export async function api<T>(yol: string, { yontem = 'GET', govde, subeId }: Sec
     throw new ApiHatasi(yanit.status, kod, metin.hatalar[kod] ?? h.mesaj ?? metin.genel.beklenmeyenHata, h.ayrinti);
   }
   return icerik as T;
+}
+
+/** Dosyayı (ör. belge) indirir; yetki ve denetim kaydı API'de. */
+export async function dosyaIndir(yol: string, ad: string): Promise<void> {
+  const basliklar: Record<string, string> = {};
+  if (seciliSube) basliklar['x-sube-id'] = seciliSube;
+  const yanit = await fetch(`/api/v1${yol}`, { headers: basliklar, credentials: 'same-origin', cache: 'no-store' }).catch(() => null);
+  if (!yanit) throw new ApiHatasi(0, 'BAGLANTI', metin.genel.baglantiHatasi);
+  if (!yanit.ok) {
+    const h = ((await yanit.json().catch(() => null)) ?? {}) as { kod?: string; mesaj?: string };
+    const kod = h.kod ?? 'BILINMIYOR';
+    throw new ApiHatasi(yanit.status, kod, metin.hatalar[kod] ?? h.mesaj ?? metin.genel.beklenmeyenHata);
+  }
+  const adres = URL.createObjectURL(await yanit.blob());
+  const baglanti = Object.assign(document.createElement('a'), { href: adres, download: ad });
+  document.body.append(baglanti);
+  baglanti.click();
+  baglanti.remove();
+  setTimeout(() => URL.revokeObjectURL(adres), 10_000);
 }
 
 export function hataMesaji(hata: unknown): string {

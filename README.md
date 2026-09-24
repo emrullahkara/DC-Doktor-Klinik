@@ -57,8 +57,8 @@ pnpm test                # tüm testler (API testleri dc_klinik_test veritabanı
 |---|---|
 | `packages/shared` | Meslekler, izin kataloğu, rol kataloğu, kilitli yasal yetki kuralları, kurum tipi profilleri |
 | `apps/api` | NestJS API: kurum kaydı, giriş, rol atama, yetki denetimi, denetim izi |
-| `apps/web` | Next.js web arayüzü: giriş, kayıt sihirbazı, Komuta Merkezi, hastalar, randevular, muayene, finans, kullanıcılar ve yetkiler, denetim izi |
-| `apps/web/e2e` | Tarayıcıda uçtan uca akış testleri (Playwright): kurum/yetki, hasta, randevu, muayene ve finans akışları |
+| `apps/web` | Next.js web arayüzü: giriş, kayıt sihirbazı, Komuta Merkezi, hastalar, randevular, muayene, finans, personel ve belgeler, kullanıcılar ve yetkiler, denetim izi |
+| `apps/web/e2e` | Tarayıcıda uçtan uca akış testleri (Playwright): kurum/yetki, hasta, randevu, muayene, finans ve personel/belge akışları |
 | `apps/api/migrations` | Veritabanı şeması (SQL); satır düzeyi güvenlik ile kiracı izolasyonu |
 
 ### API (v1) — şu an hazır olanlar
@@ -77,5 +77,8 @@ pnpm test                # tüm testler (API testleri dc_klinik_test veritabanı
 | `GET/POST /hizmetler` · `POST /hizmetler/:id/fiyat` · `GET /fiyat-talepleri` · `POST /fiyat-talepleri/:id/karar` | Hizmet kataloğu; fiyat değişikliği dört göz ilkesiyle (talep eden onaylayamaz) |
 | `GET /hastalar/:id/hesap` · `POST …/hesap/kalemler` · `…/kalemler/:id/iptal` · `POST /hastalar/:id/tahsilatlar` · `POST /tahsilatlar/:id/iade` | Hasta hesabı; %20 üstü indirim ve iade yönetici onaylı; tahsilatı alan iade edemez |
 | `GET /kasa` · `POST /kasa/kapanis` | Ödeme türüne göre gün sonu kasa; fark açıklamasız kapatılamaz, kapalı güne hareket girilmez |
+| `GET /personel` · `GET/PATCH /personel/:id` | Personel listesi (belge durumu özetiyle), personel kartı (kişi kendi kartını görür), özlük bilgileri |
+| `POST /belgeler` · `POST /belgeler/:id/kaldir` · `GET /belgeler/:id/dosya` · `GET /kurum-belgeleri` | Personel ve kurum belgeleri; dosya türü imzadan doğrulanır, içerik şifreli saklanır, indirme kayda geçer |
+| `GET /alarmlar` | Alarm motoru: süresi yaklaşan/geçen ve eksik zorunlu belgeler; görünürlük eskalasyon kuralına göre |
 | `GET /komuta/ozet` | Komuta Merkezi: bugünkü randevu, ciro, alacak, bekleme süresi, 14 günlük tahsilat |
 | `GET /denetim-izi` | Hash zincirli, değiştirilemez erişim ve işlem kayıtları |

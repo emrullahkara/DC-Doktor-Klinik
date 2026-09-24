@@ -41,6 +41,7 @@ export const IZINLER = {
 
   'personel.goruntule': { ad: 'Personel bilgilerini görüntüleme', seviye: 'serbest' },
   'personel.yonet': { ad: 'Personel özlük ve belge yönetimi', seviye: 'serbest' },
+  'belge.kurum.yonet': { ad: 'Ruhsat ve kurum belgelerini yönetme', seviye: 'serbest' },
   'nobet.planla': { ad: 'Nöbet ve vardiya planlama', seviye: 'serbest' },
   'nobet.onayla': { ad: 'Nöbet listesini onaylayıp yayınlama', seviye: 'serbest' },
 

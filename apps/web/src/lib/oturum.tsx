@@ -1,6 +1,6 @@
 'use client';
 
-import type { Izin } from '@dc/shared';
+import type { AskiyaAlma, Izin } from '@dc/shared';
 import { useRouter } from 'next/navigation';
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { api, ApiHatasi, seciliSubeAyarla } from './api';
@@ -11,6 +11,7 @@ export interface Ben {
   roller: { rolKodu: string; subeId: string | null; ad: string }[];
   subeBaglami: string | null;
   izinler: Izin[];
+  askidakiIzinler: AskiyaAlma[];
 }
 
 interface OturumDegeri {

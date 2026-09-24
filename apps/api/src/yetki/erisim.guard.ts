@@ -68,16 +68,18 @@ export class ErisimGuard implements CanActivate {
       const eksik = gerekenler.filter((i) => !izinler.has(i));
       if (herhangiBiri.length > 0 && !herhangiBiri.some((i) => izinler.has(i))) eksik.push(...herhangiBiri);
       if (eksik.length > 0) {
+        const askida = veri.askilar.filter((a) => eksik.includes(a.izin));
         await this.denetim.kaydet(tx, {
           ...baglam,
           eylem: 'erisim.reddedildi',
           subeId,
           ip: istemciIp(istek),
-          ayrinti: { yol: `${istek.method} ${istek.path}`, eksikIzinler: eksik },
+          ayrinti: { yol: `${istek.method} ${istek.path}`, eksikIzinler: eksik, ...(askida.length ? { askidaBelge: askida[0]!.belge } : {}) },
         });
+        if (askida.length) return { durum: 'askida' as const, eksik, askida };
         return { durum: 'yetki' as const, eksik };
       }
-      return { durum: 'tamam' as const, meslek: veri.meslek, izinler };
+      return { durum: 'tamam' as const, meslek: veri.meslek, izinler, askilar: veri.askilar };
     });
 
     switch (sonuc.durum) {
@@ -85,11 +87,18 @@ export class ErisimGuard implements CanActivate {
         throw new ApiHatasi(HttpStatus.UNAUTHORIZED, 'KIMLIK_GEREKLI', 'Hesabınız kapalı veya bulunamadı.');
       case 'sube':
         throw new ApiHatasi(HttpStatus.NOT_FOUND, 'SUBE_BULUNAMADI', 'Şube bulunamadı.');
+      case 'askida':
+        throw new ApiHatasi(
+          HttpStatus.FORBIDDEN,
+          'BELGE_SURESI_DOLDU',
+          'Zorunlu belgenizin süresi dolduğu için bu işlem askıya alındı. Yenilenmiş belgeyi personel birimine iletin.',
+          { eksikIzinler: sonuc.eksik, belge: sonuc.askida[0]!.belge, bitis: sonuc.askida[0]!.bitis },
+        );
       case 'yetki':
         throw new ApiHatasi(HttpStatus.FORBIDDEN, 'YETKI_YOK', 'Bu işlem için yetkiniz yok.', { eksikIzinler: sonuc.eksik });
       case 'tamam':
         istek.kimlik = baglam;
-        istek.yetki = { meslek: sonuc.meslek, subeId, izinler: sonuc.izinler };
+        istek.yetki = { meslek: sonuc.meslek, subeId, izinler: sonuc.izinler, askilar: sonuc.askilar };
         return true;
     }
   }

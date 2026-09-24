@@ -1,5 +1,5 @@
 import { createParamDecorator, type ExecutionContext, SetMetadata } from '@nestjs/common';
-import type { Izin, Meslek } from '@dc/shared';
+import type { AskiyaAlma, Izin, Meslek } from '@dc/shared';
 import type { Request } from 'express';
 
 export interface Kimlik {
@@ -12,6 +12,8 @@ export interface YetkiBaglami {
   /** İsteğin şube bağlamı (x-sube-id başlığı). null: tüm şubeler düzeyi. */
   subeId: string | null;
   izinler: ReadonlySet<Izin>;
+  /** Süresi geçmiş belge nedeniyle askıya alınmış izinler (bilgi amaçlı; `izinler`den zaten düşülmüştür) */
+  askilar: readonly AskiyaAlma[];
 }
 
 export interface KimlikliIstek extends Request {

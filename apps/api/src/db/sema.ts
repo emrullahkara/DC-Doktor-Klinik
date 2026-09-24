@@ -1,5 +1,7 @@
 import { sql } from 'drizzle-orm';
-import { bigint, boolean, date, integer, jsonb, numeric, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { bigint, boolean, customType, date, integer, jsonb, numeric, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+
+const bytea = customType<{ data: Buffer; driverData: Buffer }>({ dataType: () => 'bytea' });
 
 // Tablo tanımları migrations/ altındaki SQL ile birebir aynıdır; şema değişikliği
 // her zaman yeni bir migration dosyasıyla yapılır.
@@ -304,4 +306,47 @@ export const kasaKapanislari = pgTable('kasa_kapanislari', {
   aciklama: text('aciklama').notNull().default(''),
   kapatanId: uuid('kapatan_id').notNull(),
   zaman: timestamp('zaman', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const personelBilgileri = pgTable('personel_bilgileri', {
+  kullaniciId: uuid('kullanici_id').primaryKey(),
+  isletmeId: uuid('isletme_id').notNull(),
+  unvanBrans: text('unvan_brans').notNull().default(''),
+  calismaSekli: text('calisma_sekli').notNull().default('tam_zamanli'),
+  iseGiris: date('ise_giris', { mode: 'string' }),
+  telefon: text('telefon'),
+  guncelleyenId: uuid('guncelleyen_id').notNull(),
+  guncellemeZamani: timestamp('guncelleme_zamani', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const dosyalar = pgTable('dosyalar', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  isletmeId: uuid('isletme_id').notNull(),
+  ad: text('ad').notNull(),
+  icerikTuru: text('icerik_turu').notNull(),
+  boyut: integer('boyut').notNull(),
+  sha256: text('sha256').notNull(),
+  sifreli: bytea('sifreli').notNull(),
+  yukleyenId: uuid('yukleyen_id').notNull(),
+  zaman: timestamp('zaman', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const belgeler = pgTable('belgeler', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  isletmeId: uuid('isletme_id').notNull(),
+  kapsam: text('kapsam').notNull(),
+  kullaniciId: uuid('kullanici_id'),
+  subeId: uuid('sube_id'),
+  tur: text('tur').notNull(),
+  belgeNo: text('belge_no').notNull().default(''),
+  verenKurum: text('veren_kurum').notNull().default(''),
+  baslangic: date('baslangic', { mode: 'string' }),
+  bitis: date('bitis', { mode: 'string' }),
+  dosyaId: uuid('dosya_id'),
+  aciklama: text('aciklama').notNull().default(''),
+  ekleyenId: uuid('ekleyen_id').notNull(),
+  zaman: timestamp('zaman', { withTimezone: true }).notNull().defaultNow(),
+  kaldiranId: uuid('kaldiran_id'),
+  kaldirmaZamani: timestamp('kaldirma_zamani', { withTimezone: true }),
+  kaldirmaNedeni: text('kaldirma_nedeni'),
 });

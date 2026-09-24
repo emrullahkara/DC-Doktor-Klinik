@@ -90,6 +90,8 @@ h2 { font-size: 18px; }
 .rozet { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: #edeae2; color: var(--ikincil); }
 .rozet-nane { background: var(--nane); color: var(--petrol-koyu); }
 .rozet-kritik { background: var(--kritik-zemin); color: var(--kritik); }
+.rozet-uyari { background: var(--uyari-zemin); color: var(--uyari-metin); }
+.rozet-bilgi { background: var(--bilgi-zemin); color: var(--bilgi); }
 .cip { display: inline-block; font-size: 13px; padding: 5px 10px; border-radius: 8px; background: var(--nane-acik); color: var(--petrol-koyu); border: 1px solid var(--nane); }
 .cip-notr { background: #f4f2ec; color: var(--ikincil); border-color: var(--cizgi); }
 
