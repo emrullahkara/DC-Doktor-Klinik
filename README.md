@@ -1,6 +1,6 @@
 # DC Doktor Klinik — Sağlık Kuruluşu Yönetim Platformu
 
-> **Durum:** Tasarım aşaması (v0.1). Bu depo şu an yalnızca ürün ve sistem tasarımı dokümanlarını içerir. Kod geliştirme, tasarım onaylandıktan sonra başlayacaktır.
+> **Durum:** Faz 0 — tasarım onaylandı, arka uç çekirdeği geliştiriliyor (kurum kaydı, giriş, yetki motoru, çok kiracılı veritabanı, denetim izi).
 
 DC Doktor Klinik; **muayenehane, poliklinik, tıp merkezi, dal merkezi, ağız ve diş sağlığı klinikleri, estetik/medikal estetik klinikleri, fizik tedavi / diyet / psikoloji danışmanlık merkezleri, veteriner klinikleri ve evde sağlık hizmeti sunan kuruluşların** tüm operasyonunu — hasta, klinik, personel, nöbet, ilaç/stok, cihaz, finans, kalite, hukuki uyum ve raporlamayı — **tek bir platformda ve tek bir “Komuta Merkezi” ekranından** yönetmek için tasarlanmış bir yazılımdır.
 
@@ -36,3 +36,35 @@ Tasarımın temel iddiası şudur: **Kliniğin sahibi hekim olmasa, kliniğe hi�
 ## Önemli Not
 
 Bu dokümanlardaki mevzuat atıfları tasarım amaçlıdır. Sağlık mevzuatı (özellikle Sağlık Bakanlığı yönetmelikleri, SUT, KVKK kararları ve reklam/tanıtım kuralları) sık değişir. **Canlıya çıkmadan önce tüm hukuki metinler ve mevzuat eşlemeleri bir sağlık hukuku uzmanı ve KVKK danışmanı tarafından güncel mevzuata göre doğrulanmalıdır.** Tasarım, mevzuat değiştiğinde kod değiştirmeden güncellenebilecek şekilde (parametrik kurallar, sürümlü şablonlar) kurgulanmıştır.
+
+## Geliştirme
+
+**Gereksinimler:** Node.js 22+, pnpm 10, PostgreSQL 16 (veya Docker).
+
+```bash
+pnpm install
+cp .env.example .env
+# Veritabanı: Docker ile `docker compose up -d` ya da yerel PostgreSQL'de
+#   psql -U postgres -f scripts/db-init.sql
+pnpm --filter @dc/shared build
+pnpm db:migrate          # tabloları oluşturur
+pnpm dev:api             # http://localhost:3000/api/v1
+pnpm test                # tüm testler (API testleri dc_klinik_test veritabanını sıfırlar)
+```
+
+| Klasör | İçerik |
+|---|---|
+| `packages/shared` | Meslekler, izin kataloğu, rol kataloğu, kilitli yasal yetki kuralları, kurum tipi profilleri |
+| `apps/api` | NestJS API: kurum kaydı, giriş, rol atama, yetki denetimi, denetim izi |
+| `apps/api/migrations` | Veritabanı şeması (SQL); satır düzeyi güvenlik ile kiracı izolasyonu |
+
+### API (v1) — şu an hazır olanlar
+
+| Uç nokta | Açıklama |
+|---|---|
+| `GET /kurum-tipleri` · `POST /kurum-tipleri/onizleme` | Kayıt sihirbazı: tipler ve seçime göre modül/rol/belge/entegrasyon listesi |
+| `POST /kimlik/kayit` | Kurum kaydı (veteriner + insan sağlığı seçilirse ayrı şubeler açılır) |
+| `POST /kimlik/giris` | Giriş, 8 saatlik oturum anahtarı |
+| `GET /ben` | Oturumdaki kullanıcı, şubeler, roller ve (`x-sube-id` başlığına göre) etkin izinler |
+| `GET/POST /kullanicilar` · `POST /kullanicilar/:id/roller` | Kullanıcı ekleme ve kurallı rol atama |
+| `GET /denetim-izi` | Hash zincirli, değiştirilemez erişim ve işlem kayıtları |
