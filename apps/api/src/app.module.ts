@@ -12,6 +12,8 @@ import { KimlikService } from './kimlik/kimlik.service';
 import { KullanicilarController } from './kullanicilar/kullanicilar.controller';
 import { KullanicilarService } from './kullanicilar/kullanicilar.service';
 import { KurumTipleriController } from './kurum-tipleri/kurum-tipleri.controller';
+import { MuayenelerController } from './muayeneler/muayeneler.controller';
+import { MuayenelerService } from './muayeneler/muayeneler.service';
 import { AlanSifrelemeService } from './ortak/alan-sifreleme.service';
 import { RandevularController } from './randevular/randevular.controller';
 import { RandevularService } from './randevular/randevular.service';
@@ -24,7 +26,7 @@ export class AppModule {
     return {
       module: AppModule,
       imports: [JwtModule.register({ secret: ayarlar.jwtGizli, signOptions: { expiresIn: '8h' } })],
-      controllers: [KimlikController, KullanicilarController, KurumTipleriController, DenetimController, HastalarController, RandevularController],
+      controllers: [KimlikController, KullanicilarController, KurumTipleriController, DenetimController, HastalarController, RandevularController, MuayenelerController],
       providers: [
         { provide: AYARLAR, useValue: ayarlar },
         VeritabaniService,
@@ -35,6 +37,7 @@ export class AppModule {
         AlanSifrelemeService,
         HastalarService,
         RandevularService,
+        MuayenelerService,
         { provide: APP_GUARD, useClass: ErisimGuard },
       ],
     };

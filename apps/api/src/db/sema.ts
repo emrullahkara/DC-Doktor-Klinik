@@ -170,3 +170,63 @@ export const randevular = pgTable('randevular', {
   olusturmaZamani: timestamp('olusturma_zamani', { withTimezone: true }).notNull().defaultNow(),
   guncellemeZamani: timestamp('guncelleme_zamani', { withTimezone: true }).notNull().defaultNow(),
 });
+
+export interface TaniKaydi {
+  kod: string;
+  ad: string;
+  tur: 'on' | 'kesin';
+  birincil: boolean;
+}
+
+export interface ReceteKalemi {
+  ilac: string;
+  doz: string;
+  kullanim: string;
+  sureGun: number;
+  kutu: number;
+}
+
+export const muayeneler = pgTable('muayeneler', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  isletmeId: uuid('isletme_id').notNull(),
+  subeId: uuid('sube_id').notNull(),
+  kisiId: uuid('kisi_id').notNull(),
+  hayvanId: uuid('hayvan_id'),
+  randevuId: uuid('randevu_id'),
+  hekimId: uuid('hekim_id').notNull(),
+  durum: text('durum').notNull().default('taslak'),
+  sikayet: text('sikayet').notNull().default(''),
+  fizikMuayene: text('fizik_muayene').notNull().default(''),
+  plan: text('plan').notNull().default(''),
+  vitaller: jsonb('vitaller').$type<Record<string, number>>().notNull().default({}),
+  vitallerGirenId: uuid('vitaller_giren_id'),
+  vitallerZamani: timestamp('vitaller_zamani', { withTimezone: true }),
+  tanilar: jsonb('tanilar').$type<TaniKaydi[]>().notNull().default([]),
+  recete: jsonb('recete').$type<ReceteKalemi[]>().notNull().default([]),
+  kontrolTarihi: date('kontrol_tarihi', { mode: 'string' }),
+  olusturanId: uuid('olusturan_id'),
+  olusturmaZamani: timestamp('olusturma_zamani', { withTimezone: true }).notNull().defaultNow(),
+  guncellemeZamani: timestamp('guncelleme_zamani', { withTimezone: true }).notNull().defaultNow(),
+  imzaZamani: timestamp('imza_zamani', { withTimezone: true }),
+  icerikOzeti: text('icerik_ozeti'),
+});
+
+export const muayeneEkleri = pgTable('muayene_ekleri', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  isletmeId: uuid('isletme_id').notNull(),
+  muayeneId: uuid('muayene_id').notNull(),
+  yazanId: uuid('yazan_id').notNull(),
+  metin: text('metin').notNull(),
+  zaman: timestamp('zaman', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const acilErisimler = pgTable('acil_erisimler', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  isletmeId: uuid('isletme_id').notNull(),
+  kullaniciId: uuid('kullanici_id').notNull(),
+  kisiId: uuid('kisi_id').notNull(),
+  gerekce: text('gerekce').notNull(),
+  aciklama: text('aciklama').notNull(),
+  baslangic: timestamp('baslangic', { withTimezone: true }).notNull().defaultNow(),
+  bitis: timestamp('bitis', { withTimezone: true }).notNull(),
+});
