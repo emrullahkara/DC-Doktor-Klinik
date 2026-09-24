@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { bigint, boolean, date, jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { bigint, boolean, date, integer, jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 
 // Tablo tanımları migrations/ altındaki SQL ile birebir aynıdır; şema değişikliği
 // her zaman yeni bir migration dosyasıyla yapılır.
@@ -136,4 +136,37 @@ export const rizalar = pgTable('rizalar', {
   metinSurumu: text('metin_surumu').notNull(),
   kaydedenId: uuid('kaydeden_id'),
   zaman: timestamp('zaman', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const kaynaklar = pgTable('kaynaklar', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  isletmeId: uuid('isletme_id').notNull(),
+  subeId: uuid('sube_id').notNull(),
+  ad: text('ad').notNull(),
+  tur: text('tur').notNull(),
+  aktif: boolean('aktif').notNull().default(true),
+  olusturmaZamani: timestamp('olusturma_zamani', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const randevular = pgTable('randevular', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  isletmeId: uuid('isletme_id').notNull(),
+  subeId: uuid('sube_id').notNull(),
+  kisiId: uuid('kisi_id').notNull(),
+  hayvanId: uuid('hayvan_id'),
+  hekimId: uuid('hekim_id').notNull(),
+  kaynakId: uuid('kaynak_id'),
+  baslangic: timestamp('baslangic', { withTimezone: true }).notNull(),
+  bitis: timestamp('bitis', { withTimezone: true }).notNull(),
+  tur: text('tur').notNull(),
+  durum: text('durum').notNull().default('planlandi'),
+  notlar: text('notlar').notNull().default(''),
+  siraNo: integer('sira_no'),
+  geldiZamani: timestamp('geldi_zamani', { withTimezone: true }),
+  muayeneZamani: timestamp('muayene_zamani', { withTimezone: true }),
+  tamamlanmaZamani: timestamp('tamamlanma_zamani', { withTimezone: true }),
+  iptalNedeni: text('iptal_nedeni'),
+  olusturanId: uuid('olusturan_id'),
+  olusturmaZamani: timestamp('olusturma_zamani', { withTimezone: true }).notNull().defaultNow(),
+  guncellemeZamani: timestamp('guncelleme_zamani', { withTimezone: true }).notNull().defaultNow(),
 });

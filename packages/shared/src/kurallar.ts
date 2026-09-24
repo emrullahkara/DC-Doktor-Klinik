@@ -52,6 +52,25 @@ export function atamaIcinGerekenIzin(rol: RolKodu): Izin {
   return 'kullanici.yonet';
 }
 
+/**
+ * Atayan kişi bu rolü, bu kapsamda, hedef kişiye atayabilir mi?
+ * Genel kural `atamaIcinGerekenIzin`dir. Tek istisna: kurum sahibi (mesul.mudur.ata), atadığı mesul
+ * müdüre aynı kapsamda sağlık rolü (ör. hekim) de verebilir. Aksi hâlde sonradan atanan bir mesul
+ * müdüre hekimlik rolünü verecek kimse olmaz (kimse kendine rol atayamaz).
+ */
+export function rolAtayabilirMi(
+  rol: RolKodu,
+  atayanIzinleri: ReadonlySet<Izin>,
+  hedefAtamalari: readonly RolAtamasi[],
+  subeId: string | null,
+): { uygun: boolean; gereken: Izin } {
+  const gereken = atamaIcinGerekenIzin(rol);
+  if (atayanIzinleri.has(gereken)) return { uygun: true, gereken };
+  const hedefMesulMudur = hedefAtamalari.some((a) => a.rolKodu === 'mesul_mudur' && a.subeId === subeId);
+  const istisna = gereken === 'yetki.saglik.onayla' && atayanIzinleri.has('mesul.mudur.ata') && hedefMesulMudur;
+  return { uygun: istisna, gereken };
+}
+
 export interface RolAtamasi {
   rolKodu: RolKodu;
   /** null: işletmedeki tüm şubelerde geçerli */

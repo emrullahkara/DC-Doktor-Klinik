@@ -1,6 +1,6 @@
 'use client';
 
-import { atamaIcinGerekenIzin, MESLEKLER, type Meslek, meslekMi, ROLLER, rolAtanabilirMi, type RolKodu } from '@dc/shared';
+import { MESLEKLER, type Meslek, meslekMi, ROLLER, rolAtanabilirMi, rolAtayabilirMi, type RolKodu, rolKoduMu } from '@dc/shared';
 import { type FormEvent, useCallback, useEffect, useState } from 'react';
 import { Alan } from '@/bilesenler/Alan';
 import { api, ApiHatasi, hataMesaji } from '@/lib/api';
@@ -184,7 +184,7 @@ function KullaniciEkle({ eklendi }: { eklendi: (k: { id: string }) => void }) {
 }
 
 function RolAtaFormu({ kullanici, meslek, acik, ac, atandi }: { kullanici: Kullanici; meslek: Meslek; acik: boolean; ac: () => void; atandi: () => void }) {
-  const { ben, izinVar } = useOturum();
+  const { ben } = useOturum();
   // Yalnızca kişinin mesleğine uygun roller listelenir (kilitli yasal kural). Atayanın yetkisi
   // olmayan roller gerekçesiyle pasif gösterilir; son karar her zaman API'dedir.
   const uygunRoller = ROL_LISTESI.filter(([kod]) => rolAtanabilirMi(kod, meslek).uygun);
@@ -218,8 +218,8 @@ function RolAtaFormu({ kullanici, meslek, acik, ac, atandi }: { kullanici: Kulla
         <select value={rol} onChange={(e) => setRol(e.target.value as RolKodu)} required>
           <option value="" disabled>—</option>
           {uygunRoller.map(([kod, tanim]) => {
-            const gereken = atamaIcinGerekenIzin(kod);
-            const atayabilir = izinVar(gereken);
+            const hedefAtamalari = kullanici.roller.flatMap((r) => (rolKoduMu(r.rolKodu) ? [{ rolKodu: r.rolKodu, subeId: r.subeId }] : []));
+            const { uygun: atayabilir, gereken } = rolAtayabilirMi(kod, new Set(ben.izinler), hedefAtamalari, kapsam || null);
             return (
               <option key={kod} value={kod} disabled={!atayabilir}>
                 {tanim.ad}{atayabilir ? '' : ` — ${m.rolGerekceleri[gereken] ?? ''}`}

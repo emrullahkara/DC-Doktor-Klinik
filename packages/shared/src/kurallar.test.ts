@@ -1,7 +1,7 @@
 import { IZINLER, TUM_IZINLER } from './izinler';
 import { HEKIM_MESLEKLERI, MESLEKLER, type Meslek } from './meslekler';
 import { ROLLER, type RolKodu } from './roller';
-import { atamaIcinGerekenIzin, etkinIzinler, izinMeslegeUygunMu, rolAtanabilirMi, saglikRoluMu } from './kurallar';
+import { atamaIcinGerekenIzin, etkinIzinler, izinMeslegeUygunMu, rolAtanabilirMi, rolAtayabilirMi, saglikRoluMu } from './kurallar';
 
 const tumMeslekler = Object.keys(MESLEKLER) as Meslek[];
 const tumRoller = Object.keys(ROLLER) as RolKodu[];
@@ -113,5 +113,19 @@ describe('etkinIzinler', () => {
     );
     expect(izinler.has('recete.yaz')).toBe(true);
     expect(izinler.has('finans.goruntule')).toBe(true);
+  });
+});
+
+describe('rolAtayabilirMi', () => {
+  const sahip = etkinIzinler([{ rolKodu: 'kurum_sahibi', subeId: null }], 'idari', null);
+
+  it('kurum sahibi, atadığı mesul müdüre aynı şubede hekim rolü verebilir', () => {
+    const mesul = [{ rolKodu: 'mesul_mudur' as const, subeId: 'a' }];
+    expect(rolAtayabilirMi('hekim', sahip, mesul, 'a').uygun).toBe(true);
+    expect(rolAtayabilirMi('hekim', sahip, mesul, 'b').uygun).toBe(false);
+  });
+
+  it('kurum sahibi mesul müdür olmayan birine sağlık rolü veremez', () => {
+    expect(rolAtayabilirMi('hemsire', sahip, [], 'a')).toEqual({ uygun: false, gereken: 'yetki.saglik.onayla' });
   });
 });

@@ -1,5 +1,5 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { atamaIcinGerekenIzin, etkinIzinler, meslekMi, ROLLER, rolAtanabilirMi, rolKoduMu } from '@dc/shared';
+import { atamaIcinGerekenIzin, etkinIzinler, meslekMi, ROLLER, rolAtanabilirMi, rolAtayabilirMi, rolKoduMu } from '@dc/shared';
 import { asc, eq } from 'drizzle-orm';
 import { VeritabaniService } from '../db/veritabani.service';
 import { kullanicilar, rolAtamalari, subeler } from '../db/sema';
@@ -78,7 +78,8 @@ export class KullanicilarService {
    *  - Kimse kendine rol atayamaz (görevler ayrılığı).
    *  - Rol, hedef kişinin mesleğine uygun olmalıdır (kilitli yasal kural).
    *  - Atayan, atamanın yapıldığı kapsamda gereken izne sahip olmalıdır
-   *    (mesul müdür → mesul.mudur.ata, sağlık rolleri → yetki.saglik.onayla, diğerleri → kullanici.yonet).
+   *    (mesul müdür → mesul.mudur.ata, sağlık rolleri → yetki.saglik.onayla, diğerleri → kullanici.yonet);
+   *    istisna için bkz. rolAtayabilirMi.
    */
   async rolAta(kimlik: Kimlik, hedefId: string, istek: RolAtaIstegi, ip: string | null) {
     if (hedefId === kimlik.kullaniciId) {
@@ -98,8 +99,11 @@ export class KullanicilarService {
         if (!uygunluk.uygun) throw new ApiHatasi(HttpStatus.UNPROCESSABLE_ENTITY, uygunluk.neden, uygunluk.mesaj);
 
         const atayan = await this.yetki.yukle(tx, kimlik.kullaniciId);
-        const gereken = atamaIcinGerekenIzin(istek.rolKodu);
-        if (!atayan || !etkinIzinler(atayan.atamalar, atayan.meslek, istek.subeId).has(gereken)) {
+        const hedefVerisi = await this.yetki.yukle(tx, hedefId);
+        const { uygun, gereken } = atayan
+          ? rolAtayabilirMi(istek.rolKodu, etkinIzinler(atayan.atamalar, atayan.meslek, istek.subeId), hedefVerisi?.atamalar ?? [], istek.subeId)
+          : { uygun: false, gereken: atamaIcinGerekenIzin(istek.rolKodu) };
+        if (!uygun) {
           await this.denetim.kaydet(tx, { ...kimlik, eylem: 'rol.atama.reddedildi', varlikTipi: 'kullanici', varlikId: hedefId, subeId: istek.subeId, ip, ayrinti: { rolKodu: istek.rolKodu, gerekenIzin: gereken } });
           return { reddedildi: gereken };
         }

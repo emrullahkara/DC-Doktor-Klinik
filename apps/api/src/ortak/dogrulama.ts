@@ -25,12 +25,18 @@ export class ZodPipe<T> implements PipeTransform<unknown, T> {
   }
 }
 
-/** PostgreSQL benzersizlik ihlali mi? (drizzle hatayı `cause` içine sarar) */
-export function benzersizlikIhlaliMi(hata: unknown): boolean {
+/** Drizzle'ın `cause` içine sardığı PostgreSQL hatasını bulur. */
+export function pgHatasi(hata: unknown): { code: string; constraint?: string } | null {
   let h: unknown = hata;
   for (let i = 0; i < 3 && h; i++) {
-    if ((h as { code?: string }).code === '23505') return true;
+    const kod = (h as { code?: unknown }).code;
+    if (typeof kod === 'string' && /^[0-9A-Z]{5}$/.test(kod)) return h as { code: string; constraint?: string };
     h = (h as { cause?: unknown }).cause;
   }
-  return false;
+  return null;
+}
+
+/** PostgreSQL benzersizlik ihlali mi? */
+export function benzersizlikIhlaliMi(hata: unknown): boolean {
+  return pgHatasi(hata)?.code === '23505';
 }
