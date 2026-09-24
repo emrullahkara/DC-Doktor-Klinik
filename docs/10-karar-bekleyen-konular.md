@@ -1,5 +1,7 @@
 # 10 — Karar Bekleyen Konular
 
+> **Güncelleme:** A1, A2, B5, C8, C11, D12, D13, D14, D15, D16, E17 ve F19 cevaplandı — bkz. [Alınan Kararlar](11-alinan-kararlar.md). Açık kalanlar: A3 (pilot kurum — şimdilik yok), A4 (fiyatlandırma), B6–B7, C9–C10, E18.
+
 Bir sonraki görüşmede netleştirmemiz gereken sorular. Cevaplar tasarımı ve yol haritasını doğrudan etkiler.
 
 ## A. İş Modeli ve Hedef Pazar
