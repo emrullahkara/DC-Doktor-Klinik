@@ -59,11 +59,11 @@ export const ROLLER = {
   },
   hekim: {
     ad: 'Hekim',
-    aciklama: 'Kendi hastaları için tam tıbbi kayıt, tanı, reçete, rapor, onam.',
+    aciklama: 'Kendi hastaları için tam tıbbi kayıt, tanı, reçete, rapor, onam; kontrol randevusu verme.',
     meslekler: HEKIMLER,
     izinler: [
       'hasta.demografik.goruntule', 'hasta.kaydet', 'tibbi.kayit.goruntule', 'tibbi.kayit.yaz', 'tani.koy',
-      'recete.yaz', 'rapor.yaz', 'onam.al', 'randevu.goruntule', 'olay.bildir',
+      'recete.yaz', 'rapor.yaz', 'onam.al', 'randevu.goruntule', 'randevu.yonet', 'olay.bildir',
     ],
   },
   bashemsire: {

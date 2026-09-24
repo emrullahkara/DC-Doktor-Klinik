@@ -27,7 +27,7 @@ const ikon = (d: ReactNode) => (
 
 const MENU: MenuOgesi[] = [
   { ad: m.menu.komuta, yol: '/panel', ikon: ikon(<><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></>) },
-  { ad: m.menu.randevular, ikon: ikon(<><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></>) },
+  { ad: m.menu.randevular, yol: '/panel/randevular', izinler: ['randevu.goruntule'], ikon: ikon(<><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></>) },
   { ad: m.menu.hastalar, yol: '/panel/hastalar', izinler: ['hasta.demografik.goruntule'], ikon: ikon(<><circle cx="12" cy="8" r="4" /><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" /></>) },
   { ad: m.menu.klinik, ikon: ikon(<path d="M3 12h4l2-5 4 10 2-5h6" />) },
   { ad: m.menu.personel, ikon: ikon(<><circle cx="9" cy="8" r="3.5" /><path d="M2.5 20c1-3.5 3.5-5 6.5-5s5.5 1.5 6.5 5" /></>) },
