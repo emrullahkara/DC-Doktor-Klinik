@@ -21,7 +21,7 @@ export const ROLLER = {
     aciklama: 'İşletme verisinin tamamını görür; tıbbi veriyi yalnızca anonim/toplu görür.',
     izinler: [
       'komuta.goruntule', 'tibbi.istatistik.anonim', 'hasta.demografik.goruntule', 'randevu.goruntule',
-      'finans.goruntule', 'finans.iade.onayla', 'fiyat.onayla', 'stok.goruntule', 'personel.goruntule',
+      'finans.goruntule', 'finans.iade.onayla', 'fiyat.yonet', 'fiyat.onayla', 'stok.goruntule', 'personel.goruntule',
       'kullanici.yonet', 'mesul.mudur.ata', 'denetim.goruntule', 'ayar.yonet', 'olay.bildir',
     ],
   },

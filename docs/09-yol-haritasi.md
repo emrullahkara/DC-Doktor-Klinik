@@ -37,7 +37,6 @@ Bu kapsamdaki bir sistem tek seferde yapılmaz. Öneri: **önce gelir getiren ve
 - İTS/ÜTS bildirimleri, lot izlenebilirlik, soğuk zincir sensörleri, narkotik defteri
 - Cihaz bakım/kalibrasyon, sterilizasyon takibi
 - Estetik modülü derinleşme (yüz haritası, foto karşılaştırma, kontrendikasyon kontrolleri)
-- Veteriner modülü derinleşme (yatılı, pansiyon, pet-shop, resmî kayıtlar)
 - Hasta portalı (web), online ödeme
 - **Mobil uygulamalar** (personel, yönetici, hasta) — K4 gereği bu fazda
 - Yönetici mobil uygulaması, periyodik özetler
@@ -49,6 +48,7 @@ Bu kapsamdaki bir sistem tek seferde yapılmaz. Öneri: **önce gelir getiren ve
 - KVKK başvuru/ihlal/imha yönetimi, veri envanteri
 - Denetim modu
 - Evde sağlık derinleşme (rota, GPS, çevrimdışı mobil, cihaz zimmet, araç)
+- Veteriner özel modülleri ve “Vet” sürümü (yatılı, pansiyon, pet-shop, aşı hatırlatma, resmî kayıtlar) — K14
 - Sağlık turizmi modülü
 - CRM, lead yönetimi, anket, kampanya uyum kontrolü
 - Lab (HL7) / PACS entegrasyonları, tele-tıp

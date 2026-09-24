@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { bigint, boolean, date, integer, jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { bigint, boolean, date, integer, jsonb, numeric, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 
 // Tablo tanımları migrations/ altındaki SQL ile birebir aynıdır; şema değişikliği
 // her zaman yeni bir migration dosyasıyla yapılır.
@@ -229,4 +229,79 @@ export const acilErisimler = pgTable('acil_erisimler', {
   aciklama: text('aciklama').notNull(),
   baslangic: timestamp('baslangic', { withTimezone: true }).notNull().defaultNow(),
   bitis: timestamp('bitis', { withTimezone: true }).notNull(),
+});
+
+export const hizmetler = pgTable('hizmetler', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  isletmeId: uuid('isletme_id').notNull(),
+  kod: text('kod').notNull(),
+  ad: text('ad').notNull(),
+  kategori: text('kategori').notNull(),
+  kdvOrani: integer('kdv_orani').notNull(),
+  fiyatKurus: bigint('fiyat_kurus', { mode: 'number' }).notNull(),
+  aktif: boolean('aktif').notNull().default(false),
+  olusturanId: uuid('olusturan_id'),
+  olusturmaZamani: timestamp('olusturma_zamani', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const fiyatTalepleri = pgTable('fiyat_talepleri', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  isletmeId: uuid('isletme_id').notNull(),
+  hizmetId: uuid('hizmet_id').notNull(),
+  eskiFiyatKurus: bigint('eski_fiyat_kurus', { mode: 'number' }),
+  yeniFiyatKurus: bigint('yeni_fiyat_kurus', { mode: 'number' }).notNull(),
+  durum: text('durum').notNull().default('bekliyor'),
+  talepEdenId: uuid('talep_eden_id').notNull(),
+  talepZamani: timestamp('talep_zamani', { withTimezone: true }).notNull().defaultNow(),
+  kararVerenId: uuid('karar_veren_id'),
+  kararZamani: timestamp('karar_zamani', { withTimezone: true }),
+});
+
+export const hesapKalemleri = pgTable('hesap_kalemleri', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  isletmeId: uuid('isletme_id').notNull(),
+  subeId: uuid('sube_id').notNull(),
+  kisiId: uuid('kisi_id').notNull(),
+  randevuId: uuid('randevu_id'),
+  hizmetId: uuid('hizmet_id').notNull(),
+  ad: text('ad').notNull(),
+  birimFiyatKurus: bigint('birim_fiyat_kurus', { mode: 'number' }).notNull(),
+  adet: integer('adet').notNull(),
+  kdvOrani: integer('kdv_orani').notNull(),
+  indirimYuzde: numeric('indirim_yuzde', { precision: 5, scale: 2, mode: 'number' }).notNull().default(0),
+  indirimKurus: bigint('indirim_kurus', { mode: 'number' }).notNull().default(0),
+  indirimNedeni: text('indirim_nedeni'),
+  tutarKurus: bigint('tutar_kurus', { mode: 'number' }).notNull(),
+  ekleyenId: uuid('ekleyen_id').notNull(),
+  zaman: timestamp('zaman', { withTimezone: true }).notNull().defaultNow(),
+  iptalEdenId: uuid('iptal_eden_id'),
+  iptalZamani: timestamp('iptal_zamani', { withTimezone: true }),
+  iptalNedeni: text('iptal_nedeni'),
+});
+
+export const tahsilatlar = pgTable('tahsilatlar', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  isletmeId: uuid('isletme_id').notNull(),
+  subeId: uuid('sube_id').notNull(),
+  kisiId: uuid('kisi_id').notNull(),
+  tutarKurus: bigint('tutar_kurus', { mode: 'number' }).notNull(),
+  odemeTuru: text('odeme_turu').notNull(),
+  kasaGunu: date('kasa_gunu', { mode: 'string' }).notNull(),
+  aciklama: text('aciklama').notNull().default(''),
+  iadeEdilenId: uuid('iade_edilen_id'),
+  alanId: uuid('alan_id').notNull(),
+  zaman: timestamp('zaman', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const kasaKapanislari = pgTable('kasa_kapanislari', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  isletmeId: uuid('isletme_id').notNull(),
+  subeId: uuid('sube_id').notNull(),
+  gun: date('gun', { mode: 'string' }).notNull(),
+  beklenenNakitKurus: bigint('beklenen_nakit_kurus', { mode: 'number' }).notNull(),
+  sayilanNakitKurus: bigint('sayilan_nakit_kurus', { mode: 'number' }).notNull(),
+  farkKurus: bigint('fark_kurus', { mode: 'number' }).notNull(),
+  aciklama: text('aciklama').notNull().default(''),
+  kapatanId: uuid('kapatan_id').notNull(),
+  zaman: timestamp('zaman', { withTimezone: true }).notNull().defaultNow(),
 });

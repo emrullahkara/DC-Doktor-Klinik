@@ -5,6 +5,10 @@ import { AYARLAR, type Ayarlar } from './ayarlar';
 import { VeritabaniService } from './db/veritabani.service';
 import { DenetimController } from './denetim/denetim.controller';
 import { DenetimService } from './denetim/denetim.service';
+import { FinansController } from './finans/finans.controller';
+import { FinansService } from './finans/finans.service';
+import { KomutaController } from './komuta/komuta.controller';
+import { KomutaService } from './komuta/komuta.service';
 import { HastalarController } from './hastalar/hastalar.controller';
 import { HastalarService } from './hastalar/hastalar.service';
 import { KimlikController } from './kimlik/kimlik.controller';
@@ -26,7 +30,7 @@ export class AppModule {
     return {
       module: AppModule,
       imports: [JwtModule.register({ secret: ayarlar.jwtGizli, signOptions: { expiresIn: '8h' } })],
-      controllers: [KimlikController, KullanicilarController, KurumTipleriController, DenetimController, HastalarController, RandevularController, MuayenelerController],
+      controllers: [KimlikController, KullanicilarController, KurumTipleriController, DenetimController, HastalarController, RandevularController, MuayenelerController, FinansController, KomutaController],
       providers: [
         { provide: AYARLAR, useValue: ayarlar },
         VeritabaniService,
@@ -38,6 +42,8 @@ export class AppModule {
         HastalarService,
         RandevularService,
         MuayenelerService,
+        FinansService,
+        KomutaService,
         { provide: APP_GUARD, useClass: ErisimGuard },
       ],
     };

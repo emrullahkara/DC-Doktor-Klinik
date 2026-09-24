@@ -14,6 +14,7 @@
 | K11 | Teknoloji | Claude’a bırakıldı → **TypeScript + NestJS (modüler monolit), PostgreSQL, React + Next.js**; mobil için ileride React Native | Tek dil (TypeScript) ile arka uç, ön uç ve mobil arasında kod/tip paylaşımı |
 | K12 | e-Fatura ve SGK | **Esnek yapı:** e-Fatura birden fazla entegratöre bağlanabilir adaptörle; **MEDULA açılıp kapatılabilen ek modül** (SGK anlaşması olmayan kurumda görünmez) | Entegratör seçimi sonraya; MEDULA Faz 2’de kalır |
 | K13 | Sonraki adım | **Logo/renk önerisi + ekran taslakları** (Komuta Merkezi, randevu, muayene, kurum kayıt sihirbazı), onaydan sonra kodlama | Faz 0 sırası belirlendi |
+| K14 | Veteriner önceliği | **Veteriner çekirdekte kalır, öncelik insan sağlığı kliniklerindedir.** Ortak altyapı (hasta/sahip–hayvan, randevu, stok, kasa, yetki) her iki tarafa hizmet eder; veterinere özgü modüller (yatılı tedavi, pansiyon, pet-shop, aşı hatırlatma, TOB kayıt sistemleri) insan sağlığı ürünü satışa hazır olduktan sonra, ayrı bir “Vet” sürümü/tanıtımıyla | Faz 1–2 poliklinik, diş, estetik odaklı; veteriner özel modülleri Faz 3 |
 | K8 | Hukuk ve pilot | Şimdilik avukat ve pilot kurum yok. **Hukuki metin taslakları Claude tarafından hazırlanacak**, canlıya çıkmadan önce hukukçu onayı alınacak | Tüm metinlerde “taslak – hukuki onay bekliyor” durumu; onaysız şablon canlı kiracıda kullanılamaz |
 
 ## Kurum Tipi Profili Motoru (K2’nin Tasarımı)
