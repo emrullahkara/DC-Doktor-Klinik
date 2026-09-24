@@ -58,7 +58,7 @@ pnpm test                # tüm testler (API testleri dc_klinik_test veritabanı
 | `packages/shared` | Meslekler, izin kataloğu, rol kataloğu, kilitli yasal yetki kuralları, kurum tipi profilleri |
 | `apps/api` | NestJS API: kurum kaydı, giriş, rol atama, yetki denetimi, denetim izi |
 | `apps/web` | Next.js web arayüzü: giriş, kayıt sihirbazı, Komuta Merkezi, kullanıcılar ve yetkiler, denetim izi |
-| `apps/web/e2e` | Tarayıcıda uçtan uca akış testi (Playwright) |
+| `apps/web/e2e` | Tarayıcıda uçtan uca akış testleri (Playwright): kurum/yetki akışı ve hasta akışı |
 | `apps/api/migrations` | Veritabanı şeması (SQL); satır düzeyi güvenlik ile kiracı izolasyonu |
 
 ### API (v1) — şu an hazır olanlar
@@ -70,4 +70,6 @@ pnpm test                # tüm testler (API testleri dc_klinik_test veritabanı
 | `POST /kimlik/giris` | Giriş, 8 saatlik oturum anahtarı |
 | `GET /ben` | Oturumdaki kullanıcı, şubeler, roller ve (`x-sube-id` başlığına göre) etkin izinler |
 | `GET/POST /kullanicilar` · `POST /kullanicilar/:id/roller` | Kullanıcı ekleme ve kurallı rol atama |
+| `GET/POST /hastalar` · `GET/PATCH /hastalar/:id` | Hasta arama (Türkçe karakterden bağımsız), kayıt (KVKK aydınlatma zorunlu, mükerrer önleme), kart |
+| `GET /hastalar/:id/kimlik-no` · `POST /hastalar/:id/rizalar` · `…/uyarilar` · `…/hayvanlar` | Açık kimlik no (kayıtlı), rıza verme/geri çekme, role göre görünen uyarılar, hayvan kaydı |
 | `GET /denetim-izi` | Hash zincirli, değiştirilemez erişim ve işlem kayıtları |

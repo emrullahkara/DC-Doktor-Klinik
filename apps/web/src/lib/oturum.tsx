@@ -47,14 +47,17 @@ function subeKaydet(id: string | null) {
 }
 
 /**
- * Başlangıç şubesi: daha önce seçilen (hâlâ geçerliyse); yoksa kişinin tüm şubelerde geçerli
- * bir rolü varsa “tüm şubeler”; yoksa rolünün bulunduğu ilk şube.
+ * Başlangıç şubesi. Tüm şubelerde geçerli roller her şubede de geçerli olduğundan belirli bir şube
+ * seçmek hiçbir yetkiyi kaybettirmez; bu yüzden: daha önce seçilen (hâlâ geçerliyse) → şubeye bağlı
+ * rolünün bulunduğu ilk şube → tek şube varsa o şube → yoksa “tüm şubeler” (konsolide görünüm).
  */
 function baslangicSubesi(ben: Ben): string | null {
   const kayitli = kayitliSube();
   if (kayitli && ben.subeler.some((s) => s.id === kayitli)) return kayitli;
-  if (ben.roller.some((r) => r.subeId === null)) return null;
-  return ben.roller.find((r) => r.subeId)?.subeId ?? null;
+  const rolSubesi = ben.roller.find((r) => r.subeId)?.subeId;
+  if (rolSubesi) return rolSubesi;
+  if (ben.subeler.length === 1) return ben.subeler[0]!.id;
+  return null;
 }
 
 export function OturumSaglayici({ children, yukleniyor }: { children: ReactNode; yukleniyor: ReactNode }) {

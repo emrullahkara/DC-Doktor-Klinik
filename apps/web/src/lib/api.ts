@@ -18,7 +18,7 @@ export class ApiHatasi extends Error {
 }
 
 interface Secenekler {
-  yontem?: 'GET' | 'POST';
+  yontem?: 'GET' | 'POST' | 'PATCH';
   govde?: unknown;
   /** Verilmezse paneldeki seçili şube kullanılır. */
   subeId?: string | null;
