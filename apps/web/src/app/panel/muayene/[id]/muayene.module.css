@@ -1,0 +1,29 @@
+.duzen { display: flex; gap: 20px; align-items: flex-start; }
+.solYan { width: 240px; flex-shrink: 0; }
+.yan { position: sticky; top: 16px; }
+.metinAlani { min-height: 0 !important; padding: 10px 14px !important; line-height: 1.5; resize: vertical; }
+.metinAlani:disabled, .vital input:disabled, .vitalDisi input:disabled { background: #f9f8f4; color: var(--gece); }
+
+.uyariCipi { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #8f1c13; background: var(--kritik-zemin); border: 1px solid #f0c4be; border-radius: 8px; padding: 5px 10px; }
+
+.vitalIzgara { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
+.vital, .vitalDisi { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border-radius: 10px; background: #f9f8f4; border: 1px solid #edeae2; }
+.vitalDisi { background: var(--uyari-zemin); border-color: #f2d49c; }
+.vital input, .vitalDisi input { font: inherit; font-size: 18px; font-weight: 600; border: none; background: transparent; padding: 0; min-height: 36px; width: 100%; color: var(--gece); }
+.vital input:focus, .vitalDisi input:focus { outline: 2px solid var(--petrol); border-radius: 4px; }
+
+.aramaListesi { position: absolute; left: 0; right: 0; top: 100%; z-index: 5; list-style: none; margin: 4px 0 0; padding: 0; background: var(--beyaz); border: 1px solid var(--cizgi); border-radius: 12px; max-height: 260px; overflow-y: auto; box-shadow: 0 8px 24px rgba(19, 35, 42, 0.12); }
+.aramaListesi button { width: 100%; text-align: left; padding: 10px 12px; min-height: 44px; border: none; border-bottom: 1px solid var(--cizgi-acik); background: var(--beyaz); font: inherit; cursor: pointer; }
+.aramaListesi button:hover { background: var(--nane-acik); }
+.taniSatiri { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 8px 12px; border-radius: 10px; background: var(--nane-acik); border: 1px solid var(--nane); }
+.kucukSecim { min-height: 36px; border-radius: 8px; border: 1px solid #d5d0c5; font: inherit; font-size: 13px; padding: 0 6px; background: var(--beyaz); }
+.receteKalemi { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--cizgi); }
+
+.altCubuk { position: sticky; bottom: 0; display: flex; align-items: center; gap: 12px; padding: 12px 20px; background: var(--beyaz); border: 1px solid var(--cizgi); border-radius: 14px; box-shadow: 0 -4px 16px rgba(19, 35, 42, 0.06); }
+.perdeArka { position: fixed; inset: 0; background: rgba(19, 35, 42, 0.45); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 30; }
+.pencere { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 14px; }
+
+@media (max-width: 1200px) {
+  .duzen { flex-direction: column; }
+  .solYan, .yan { width: 100% !important; position: static; }
+}

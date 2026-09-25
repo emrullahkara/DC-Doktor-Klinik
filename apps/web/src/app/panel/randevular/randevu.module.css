@@ -1,0 +1,37 @@
+.ust { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.tarihDugmeleri { display: flex; align-items: center; gap: 6px; }
+.ikonDugme { width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--cizgi); background: var(--beyaz); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; color: var(--gece); }
+.aciklama { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; font-size: 13px; color: var(--ikincil); }
+.aciklamaOge { display: inline-flex; align-items: center; gap: 6px; }
+.renkKutusu { display: inline-block; width: 14px; height: 14px; border-radius: 4px; box-sizing: border-box; }
+
+.duzen { display: flex; gap: 20px; align-items: flex-start; }
+.yan { width: 340px; flex-shrink: 0; display: flex; flex-direction: column; gap: 16px; position: sticky; top: 16px; }
+
+.takvim { flex: 1; min-width: 0; background: var(--beyaz); border: 1px solid var(--cizgi); border-radius: 16px; overflow-x: auto; }
+.takvimUst { display: flex; border-bottom: 1px solid var(--cizgi); min-height: 52px; position: sticky; top: 0; background: var(--beyaz); z-index: 2; }
+.saatSutunu { width: 56px; flex-shrink: 0; }
+.sutunBaslik { flex: 1 0 170px; min-width: 170px; padding: 8px 10px; border-left: 1px solid var(--cizgi); display: flex; flex-direction: column; justify-content: center; font-size: 14px; }
+.takvimGovde { position: relative; display: flex; padding-top: 8px; }
+.saatEtiketi { position: absolute; right: 8px; transform: translateY(-50%); font-size: 11px; color: var(--ikincil); font-family: var(--font-plex-mono), monospace; }
+.sutun {
+  flex: 1 0 170px; min-width: 170px; position: relative; border-left: 1px solid var(--cizgi); cursor: copy;
+  background-image: linear-gradient(to bottom, #edeae2 1px, transparent 1px);
+}
+.blok {
+  position: absolute; left: 4px; right: 4px; box-sizing: border-box; padding: 3px 7px; border-radius: 8px; overflow: hidden;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 1px; text-align: left; font: inherit; cursor: pointer; z-index: 1;
+}
+.blokSatir { display: flex; align-items: center; gap: 6px; width: 100%; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.blokAd { font-size: 12px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
+.simdiCizgisi { position: absolute; left: 50px; right: 0; height: 2px; background: var(--mercan); z-index: 3; pointer-events: none; }
+.simdiEtiketi { position: absolute; left: 2px; font-size: 11px; font-weight: 600; color: #fff; background: var(--mercan-metin); border-radius: 4px; padding: 1px 4px; z-index: 3; font-family: var(--font-plex-mono), monospace; }
+
+.salonOge { display: flex; gap: 10px; padding: 10px; border-radius: 10px; background: #f9f8f4; border: 1px solid #edeae2; width: 100%; text-align: left; font: inherit; cursor: pointer; color: inherit; }
+.siraNo { font-family: var(--font-plex-mono), monospace; font-size: 13px; color: var(--petrol); background: #e7efec; border-radius: 6px; padding: 2px 6px; height: fit-content; }
+
+@media (max-width: 1100px) {
+  .duzen { flex-direction: column; }
+  .yan { width: 100%; position: static; }
+  .takvim { width: 100%; }
+}

@@ -2,14 +2,33 @@
 
 Bu kapsamdaki bir sistem tek seferde yapılmaz. Öneri: **önce gelir getiren ve günlük operasyonu çözen çekirdek**, sonra uyum ve derinlik. Her faz sonunda pilot kurumda (tercihen bir poliklinik + bir diş kliniği + bir veteriner) sahada doğrulama.
 
+> **Kararlarla güncellendi ([11](11-alinan-kararlar.md)):** SaaS ürünü; tüm kurum tipleri tek uygulamada, kurum tipi profili ile; resmî entegrasyonlar aracı servis üzerinden; önce web; çok dil (TR, EN, AR, RU, DE) ilk sürümde. Kurum tipi profilleri Faz 1’de **tüm tipler için temel düzeyde** gelir (hasta modeli, randevu, muayene şablonları, onamlar, fiyat kataloğu); tipe özgü derin özellikler fazlara yayılır.
+
+## Uygulama Durumu (Eylül 2026)
+
+**Kodlandı ve testli (API + tarayıcı akış testleri):**
+- Çekirdek: çok kiracılı SaaS (RLS), kurum kayıt sihirbazı, kurum tipi profilleri, rol ve kilitli yasal yetki kuralları, hash zincirli denetim izi
+- Hasta kaydı (KVKK aydınlatma/rıza, şifreli TC kimlik), randevu ve kabul, muayene kaydı (tedavi ilişkisi, acil erişim, parolalı imza)
+- Finans: hizmet/fiyat onayı, hasta hesabı, tahsilat, iade, gün sonu kasa; Komuta Merkezi göstergeleri
+- Personel ve belge takibi, süresi dolan belgeyle işlem askıya alma, ortak alarm motoru
+- Nöbet ve vardiya çizelgesi (kurallar, dört göz onayı, izinler)
+- Stok ve ilaç (lot/SKT, FEFO, narkotik şahit, lot izleme)
+- Kalite: isimsiz olay bildirimi, şikâyet (resmî süre sayacı), DÖF
+
+**Sıradaki adaylar:** çok dil (EN, AR-RTL, RU, DE), iletişim ve hatırlatmalar (SMS/e-posta), e-Reçete/e-Nabız/e-Fatura için aracı servis adaptörleri, hekim hakedişi, cihaz/bakım ve sterilizasyon, tipe özgü modüller (odontogram, estetik seans, veteriner), mobil.
+
 ## Faz 0 — Temel (Altyapı ve Tasarım Detayı)
 - Tasarımın onaylanması, açık soruların kapatılması ([10](10-karar-bekleyen-konular.md))
 - Ekran taslakları (wireframe) — Komuta Merkezi, randevu, muayene, kasa
 - Proje iskeleti, CI/CD, kimlik yönetimi, çok kiracılık, yetki motoru, denetim izi
-- Tasarım sistemi (UI bileşenleri)
+- **Kurum Tipi Profili motoru** ve kayıt sihirbazı
+- **Çok dil altyapısı** (i18n, Arapça için sağdan sola düzen)
+- Aracı entegrasyon servisi seçimi ve sağlayıcı bağımsız adaptör katmanı
+- Tasarım sistemi (UI bileşenleri), logo ve renk kimliği önerisi
 
 ## Faz 1 — Çekirdek Operasyon (MVP)
-**Hedef:** Bir poliklinik/muayenehane/diş kliniği tüm gününü sistemde geçirebilsin.
+**Hedef:** Her kurum tipi (tıp merkezi/poliklinik/muayenehane, diş, estetik, veteriner, evde sağlık) temel günlük işini sistemde yapabilsin; SaaS olarak satışa hazır olsun.
+- Platform yönetim paneli, abonelik ve deneme süreci
 - İşletme/şube/birim tanımları, kullanıcılar, roller, yetki matrisi
 - Hasta kaydı, KVKK aydınlatma ve rıza, uyarı bayrakları
 - Randevu (kaynak bazlı), kabul, bekleme ekranı, SMS hatırlatma
@@ -21,6 +40,8 @@ Bu kapsamdaki bir sistem tek seferde yapılmaz. Öneri: **önce gelir getiren ve
 - Personel kartı + belge takibi + alarm
 - Komuta Merkezi v1 (sahip, hekim, sekreter panoları)
 - Diş modülü v1 (odontogram, tedavi planı, teklif, taksit)
+- Estetik v1 (seans/paket, ürün-lot kaydı), Veteriner v1 (sahip–hayvan, aşı karnesi + hatırlatma), Evde sağlık v1 (ziyaret planı, web üzerinden ziyaret kaydı)
+- Hukuki metin taslakları (TR + çeviriler) — “hukuki onay bekliyor” durumunda
 
 ## Faz 2 — Derinlik ve Resmî Entegrasyonlar
 - Nöbet/vardiya planlama, puantaj, izin, takas
@@ -28,9 +49,9 @@ Bu kapsamdaki bir sistem tek seferde yapılmaz. Öneri: **önce gelir getiren ve
 - MEDULA (SGK), özel sigorta provizyonları, e-Rapor
 - İTS/ÜTS bildirimleri, lot izlenebilirlik, soğuk zincir sensörleri, narkotik defteri
 - Cihaz bakım/kalibrasyon, sterilizasyon takibi
-- Estetik modülü (paket/seans, lot, yüz haritası, foto)
-- **Veteriner modülü** (sahip–hayvan, aşı, yatılı, pansiyon, pet-shop, resmî kayıtlar)
-- Hasta portalı ve mobil uygulama, online ödeme
+- Estetik modülü derinleşme (yüz haritası, foto karşılaştırma, kontrendikasyon kontrolleri)
+- Hasta portalı (web), online ödeme
+- **Mobil uygulamalar** (personel, yönetici, hasta) — K4 gereği bu fazda
 - Yönetici mobil uygulaması, periyodik özetler
 - Muhasebe entegrasyonu
 
@@ -39,7 +60,8 @@ Bu kapsamdaki bir sistem tek seferde yapılmaz. Öneri: **önce gelir getiren ve
 - Enfeksiyon kontrol, İSG, tıbbi atık, radyasyon güvenliği
 - KVKK başvuru/ihlal/imha yönetimi, veri envanteri
 - Denetim modu
-- **Evde sağlık modülü** (rota, GPS, çevrimdışı mobil, cihaz zimmet, araç)
+- Evde sağlık derinleşme (rota, GPS, çevrimdışı mobil, cihaz zimmet, araç)
+- Veteriner özel modülleri ve “Vet” sürümü (yatılı, pansiyon, pet-shop, aşı hatırlatma, resmî kayıtlar) — K14
 - Sağlık turizmi modülü
 - CRM, lead yönetimi, anket, kampanya uyum kontrolü
 - Lab (HL7) / PACS entegrasyonları, tele-tıp

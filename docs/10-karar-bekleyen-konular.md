@@ -1,5 +1,7 @@
 # 10 — Karar Bekleyen Konular
 
+> **Güncelleme:** A3 (pilot kurum — şimdilik yok) dışındaki tüm sorular cevaplandı — bkz. [Alınan Kararlar](11-alinan-kararlar.md).
+
 Bir sonraki görüşmede netleştirmemiz gereken sorular. Cevaplar tasarımı ve yol haritasını doğrudan etkiler.
 
 ## A. İş Modeli ve Hedef Pazar

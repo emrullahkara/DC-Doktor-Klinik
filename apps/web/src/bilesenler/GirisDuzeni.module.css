@@ -1,0 +1,14 @@
+.kap { min-height: 100vh; display: flex; }
+.marka {
+  width: 44%; max-width: 560px; background: var(--petrol); color: #f6f4ef;
+  padding: 40px 48px; display: flex; flex-direction: column; justify-content: space-between;
+}
+.slogan { display: flex; flex-direction: column; gap: 12px; }
+.sloganBuyuk { margin: 0; font-size: 34px; font-weight: 600; line-height: 1.2; letter-spacing: -0.01em; }
+.sloganKucuk { margin: 0; font-size: 16px; color: var(--nane); max-width: 400px; }
+.icerik { flex: 1; display: flex; align-items: center; justify-content: center; padding: 32px 16px; }
+@media (max-width: 860px) {
+  .kap { flex-direction: column; }
+  .marka { width: 100%; max-width: none; padding: 20px 16px; }
+  .slogan { display: none; }
+}

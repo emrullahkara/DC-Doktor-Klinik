@@ -1,6 +1,6 @@
 # DC Doktor Klinik — Sağlık Kuruluşu Yönetim Platformu
 
-> **Durum:** Tasarım aşaması (v0.1). Bu depo şu an yalnızca ürün ve sistem tasarımı dokümanlarını içerir. Kod geliştirme, tasarım onaylandıktan sonra başlayacaktır.
+> **Durum:** Faz 0 — tasarım onaylandı; kurum kaydı, giriş, yetki motoru, çok kiracılı veritabanı, denetim izi ve bunların web arayüzü çalışıyor.
 
 DC Doktor Klinik; **muayenehane, poliklinik, tıp merkezi, dal merkezi, ağız ve diş sağlığı klinikleri, estetik/medikal estetik klinikleri, fizik tedavi / diyet / psikoloji danışmanlık merkezleri, veteriner klinikleri ve evde sağlık hizmeti sunan kuruluşların** tüm operasyonunu — hasta, klinik, personel, nöbet, ilaç/stok, cihaz, finans, kalite, hukuki uyum ve raporlamayı — **tek bir platformda ve tek bir “Komuta Merkezi” ekranından** yönetmek için tasarlanmış bir yazılımdır.
 
@@ -29,7 +29,62 @@ Tasarımın temel iddiası şudur: **Kliniğin sahibi hekim olmasa, kliniğe hi�
 | 08 | [Teknik Mimari ve Güvenlik](docs/08-teknik-mimari.md) | Mimari, teknoloji önerisi, güvenlik, yedekleme, denetim izi |
 | 09 | [Yol Haritası](docs/09-yol-haritasi.md) | Aşamalı geliştirme planı (MVP → tam ürün) |
 | 10 | [Karar Bekleyen Konular](docs/10-karar-bekleyen-konular.md) | Bir sonraki görüşmede netleştirilecek sorular |
+| 11 | [Alınan Kararlar](docs/11-alinan-kararlar.md) | İş modeli, kurum tipi profili motoru, SaaS katmanı, çok dil |
+| 12 | [Marka Kılavuzu](docs/12-marka-kilavuzu.md) | Logo, renkler, yazı tipleri, arayüz dili |
+| 13 | [Ekran Taslakları](docs/13-ekran-taslaklari.md) | Onaylanan ana ekranlar ve bağlantıları |
 
 ## Önemli Not
 
 Bu dokümanlardaki mevzuat atıfları tasarım amaçlıdır. Sağlık mevzuatı (özellikle Sağlık Bakanlığı yönetmelikleri, SUT, KVKK kararları ve reklam/tanıtım kuralları) sık değişir. **Canlıya çıkmadan önce tüm hukuki metinler ve mevzuat eşlemeleri bir sağlık hukuku uzmanı ve KVKK danışmanı tarafından güncel mevzuata göre doğrulanmalıdır.** Tasarım, mevzuat değiştiğinde kod değiştirmeden güncellenebilecek şekilde (parametrik kurallar, sürümlü şablonlar) kurgulanmıştır.
+
+## Geliştirme
+
+**Gereksinimler:** Node.js 22+, pnpm 10, PostgreSQL 16 (veya Docker).
+
+```bash
+pnpm install
+cp .env.example .env
+# Veritabanı: Docker ile `docker compose up -d` ya da yerel PostgreSQL'de
+#   psql -U postgres -f scripts/db-init.sql
+pnpm --filter @dc/shared build
+pnpm db:migrate          # tabloları oluşturur
+pnpm dev:api             # http://localhost:3000/api/v1
+pnpm --filter @dc/web dev # http://localhost:3001 (API'ye /api/v1 üzerinden bağlanır)
+pnpm test                # tüm testler (API testleri dc_klinik_test veritabanını sıfırlar)
+```
+
+| Klasör | İçerik |
+|---|---|
+| `packages/shared` | Meslekler, izin kataloğu, rol kataloğu, kilitli yasal yetki kuralları, kurum tipi profilleri |
+| `apps/api` | NestJS API: kurum kaydı, giriş, rol atama, yetki denetimi, denetim izi |
+| `apps/web` | Next.js web arayüzü: giriş, kayıt sihirbazı, Komuta Merkezi, hastalar, randevular, muayene, finans, personel ve belgeler, nöbet çizelgesi, stok ve ilaç, kalite ve uyum, kullanıcılar ve yetkiler, denetim izi |
+| `apps/web/e2e` | Tarayıcıda uçtan uca akış testleri (Playwright): kurum/yetki, hasta, randevu, muayene, finans, personel/belge, nöbet, stok ve kalite akışları |
+| `apps/api/migrations` | Veritabanı şeması (SQL); satır düzeyi güvenlik ile kiracı izolasyonu |
+
+### API (v1) — şu an hazır olanlar
+
+| Uç nokta | Açıklama |
+|---|---|
+| `GET /kurum-tipleri` · `POST /kurum-tipleri/onizleme` | Kayıt sihirbazı: tipler ve seçime göre modül/rol/belge/entegrasyon listesi |
+| `POST /kimlik/kayit` | Kurum kaydı (veteriner + insan sağlığı seçilirse ayrı şubeler açılır) |
+| `POST /kimlik/giris` | Giriş, 8 saatlik oturum anahtarı |
+| `GET /ben` | Oturumdaki kullanıcı, şubeler, roller ve (`x-sube-id` başlığına göre) etkin izinler |
+| `GET/POST /kullanicilar` · `POST /kullanicilar/:id/roller` | Kullanıcı ekleme ve kurallı rol atama |
+| `GET/POST /hastalar` · `GET/PATCH /hastalar/:id` | Hasta arama (Türkçe karakterden bağımsız), kayıt (KVKK aydınlatma zorunlu, mükerrer önleme), kart |
+| `GET /hastalar/:id/kimlik-no` · `POST /hastalar/:id/rizalar` · `…/uyarilar` · `…/hayvanlar` | Açık kimlik no (kayıtlı), rıza verme/geri çekme, role göre görünen uyarılar, hayvan kaydı |
+| `GET/POST /kaynaklar` · `GET /randevular/takvim` · `POST /randevular` · `…/:id/durum` · `…/:id/tasi` | Oda/cihaz, günlük takvim, çakışmasız randevu, kabul (sıra no), muayene, iptal, taşıma |
+| `POST /muayeneler` · `GET/PATCH /muayeneler/:id` · `…/imzala` · `…/ek-not` · `GET /hastalar/:id/muayeneler` · `POST /hastalar/:id/acil-erisim` · `GET /icd10` | Muayene kaydı (tedavi ilişkisi şartı), parolalı imza ve kilit, ek not, geçmiş, gerekçeli acil erişim, ICD-10 arama |
+| `GET/POST /hizmetler` · `POST /hizmetler/:id/fiyat` · `GET /fiyat-talepleri` · `POST /fiyat-talepleri/:id/karar` | Hizmet kataloğu; fiyat değişikliği dört göz ilkesiyle (talep eden onaylayamaz) |
+| `GET /hastalar/:id/hesap` · `POST …/hesap/kalemler` · `…/kalemler/:id/iptal` · `POST /hastalar/:id/tahsilatlar` · `POST /tahsilatlar/:id/iade` | Hasta hesabı; %20 üstü indirim ve iade yönetici onaylı; tahsilatı alan iade edemez |
+| `GET /kasa` · `POST /kasa/kapanis` | Ödeme türüne göre gün sonu kasa; fark açıklamasız kapatılamaz, kapalı güne hareket girilmez |
+| `GET /personel` · `GET/PATCH /personel/:id` | Personel listesi (belge durumu özetiyle), personel kartı (kişi kendi kartını görür), özlük bilgileri |
+| `POST /belgeler` · `POST /belgeler/:id/kaldir` · `GET /belgeler/:id/dosya` · `GET /kurum-belgeleri` | Personel ve kurum belgeleri; dosya türü imzadan doğrulanır, içerik şifreli saklanır, indirme kayda geçer |
+| `GET/POST /cizelge` · `POST /cizelge/:id/gorevler` · `…/onaya-gonder` · `…/karar` · `…/revizyon` · `POST /gorevler/:id/sil` · `GET /gorevlerim` | Aylık nöbet/vardiya çizelgesi: çakışma ve izin engeli, süre kuralı ihlalleri, dört göz onayı |
+| `GET/PATCH /nobet/ayarlar` · `GET/POST /personel/:id/izinler` · `POST /izinler/:id/iptal` | Nöbet kuralları (kurum ayarı) ve personel izinleri |
+| `GET/POST /urunler` · `GET/PATCH /urunler/:id` · `POST /urunler/:id/hareketler` · `GET /urunler/:id/lot-izleme` · `GET /stok/sahitler` | Stok: lot/SKT, FEFO, hastaya kullanım, fire, sayım farkı; SKT geçmiş ürün kullanılamaz; narkotik şahitli; lot → hasta izleme |
+| `POST /olaylar` · `GET /olaylar/takip/:kod` · `GET /olaylarim` · `GET/PATCH /olaylar(/:id)` | Olay bildirimi (isimsiz seçenekli, takip kodu), inceleme ve kök nedenle kapatma |
+| `GET/POST /sikayetler` · `…/:id/cevap` · `…/:id/kapat` | Şikâyet: resmî kanalda cevap süresi sayacı; tıbbi şikâyete başhekim/mesul cevap verir |
+| `GET/POST /dofler` · `…/:id/tamamla` · `…/:id/dogrula` · `GET /kalite/kisiler` | DÖF: sorumlu tamamlar, başka kalite yetkilisi etkinliği doğrular |
+| `GET /alarmlar` | Alarm motoru: süresi yaklaşan/geçen ve eksik zorunlu belgeler; görünürlük eskalasyon kuralına göre |
+| `GET /komuta/ozet` | Komuta Merkezi: bugünkü randevu, ciro, alacak, bekleme süresi, 14 günlük tahsilat |
+| `GET /denetim-izi` | Hash zincirli, değiştirilemez erişim ve işlem kayıtları |
