@@ -784,6 +784,8 @@ export const tr = {
     KASA_ZATEN_KAPALI: 'Bu günün kasası zaten kapatılmış.',
     FARK_ACIKLAMASI_GEREKLI: 'Kasada fark var; açıklama yazın.',
     MIKROCIP_KAYITLI: 'Bu mikroçip numarasıyla kayıtlı bir hayvan var.',
+    COK_FAZLA_DENEME: 'Çok fazla deneme yapıldı. Lütfen bir süre bekleyip tekrar deneyin.',
+    SUBE_KAPSAMI_DISI: 'Bu kayıt yetkinizin olmadığı bir şubeye ait.',
     BELGE_SURESI_DOLDU: 'Zorunlu belgenizin süresi dolduğu için bu işlem askıya alındı. Yenilenmiş belgeyi personel birimine iletin.',
     DOSYA_TURU: 'Yalnızca PDF, JPEG veya PNG dosyası yüklenebilir.',
     DOSYA_BUYUK: 'Dosya en çok 10 MB olabilir.',

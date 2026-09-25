@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import {
   askidakiIzinler,
   type AskiyaAlma,
@@ -14,6 +14,7 @@ import {
 import { and, eq, inArray, isNull, sql } from 'drizzle-orm';
 import type { Islem } from '../db/veritabani.service';
 import { belgeler, kullanicilar, rolAtamalari } from '../db/sema';
+import { ApiHatasi } from '../ortak/dogrulama';
 
 export interface KullaniciYetkiVerisi {
   aktif: boolean;
@@ -51,6 +52,23 @@ export class YetkiService {
     const askilar = belgeSatirlari.length ? askidakiIzinler(belgeSatirlari, belgeSatirlari[0]!.bugun) : [];
 
     return { aktif: kullanici.aktif, meslek: kullanici.meslek, atamalar, askilar };
+  }
+
+  /**
+   * Kişi bu izne, kaydın ait olduğu şubede sahip mi? (null: tüm şubeler düzeyi.)
+   * Kimliğiyle (id) erişilen şubeye bağlı kayıtlarda kullanılır: bir şubedeki yetki, başka
+   * şubenin kaydını değiştirmeye yetmez.
+   */
+  async subedeIzinVarMi(tx: Islem, kullaniciId: string, izin: Izin, subeId: string | null): Promise<boolean> {
+    const veri = await this.yukle(tx, kullaniciId);
+    return !!veri && veri.aktif && this.izinler(veri, subeId).has(izin);
+  }
+
+  /** `subedeIzinVarMi` değilse 403 SUBE_KAPSAMI_DISI fırlatır. */
+  async subeIzniGerekli(tx: Islem, kullaniciId: string, izin: Izin, subeId: string | null): Promise<void> {
+    if (!(await this.subedeIzinVarMi(tx, kullaniciId, izin, subeId))) {
+      throw new ApiHatasi(HttpStatus.FORBIDDEN, 'SUBE_KAPSAMI_DISI', 'Bu kayıt yetkinizin olmadığı bir şubeye ait.', { eksikIzinler: [izin] });
+    }
   }
 
   /** Rollerden gelen izinler, eksi süresi geçmiş belge nedeniyle askıya alınanlar. */

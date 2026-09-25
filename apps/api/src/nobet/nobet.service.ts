@@ -17,6 +17,7 @@ import { type Islem, VeritabaniService } from '../db/veritabani.service';
 import { DenetimService } from '../denetim/denetim.service';
 import { ApiHatasi, pgHatasi } from '../ortak/dogrulama';
 import type { Kimlik, YetkiBaglami } from '../yetki/baglam';
+import { YetkiService } from '../yetki/yetki.service';
 import type { AyarIstegi, GorevIstegi, IzinIstegi, KararIstegi } from './nobet.dto';
 
 type CizelgeSatiri = typeof cizelgeler.$inferSelect;
@@ -44,6 +45,7 @@ export class NobetService {
   constructor(
     private readonly db: VeritabaniService,
     private readonly denetim: DenetimService,
+    private readonly yetkiService: YetkiService,
   ) {}
 
   private async ayarOku(tx: Islem): Promise<NobetAyarlari> {
@@ -161,6 +163,7 @@ export class NobetService {
     try {
       return await this.db.kiraciIslemi(kimlik, async (tx) => {
         const c = await this.cizelgeBul(tx, cizelgeId);
+        await this.yetkiService.subeIzniGerekli(tx, kimlik.kullaniciId, 'nobet.planla', c.subeId);
         if (c.durum !== 'taslak') throw new ApiHatasi(HttpStatus.CONFLICT, 'CIZELGE_KILITLI', 'Onaya gönderilmiş veya yayındaki çizelge değiştirilemez.');
         const bas = Date.parse(istek.baslangic);
         const bit = Date.parse(istek.bitis);
@@ -196,6 +199,7 @@ export class NobetService {
       const [g] = await tx.select().from(gorevler).where(eq(gorevler.id, gorevId));
       if (!g) throw new ApiHatasi(HttpStatus.NOT_FOUND, 'GOREV_BULUNAMADI', 'Görev bulunamadı.');
       const c = await this.cizelgeBul(tx, g.cizelgeId);
+      await this.yetkiService.subeIzniGerekli(tx, kimlik.kullaniciId, 'nobet.planla', c.subeId);
       if (c.durum !== 'taslak') throw new ApiHatasi(HttpStatus.CONFLICT, 'CIZELGE_KILITLI', 'Onaya gönderilmiş veya yayındaki çizelge değiştirilemez.');
       await tx.delete(gorevler).where(eq(gorevler.id, gorevId));
       await this.denetim.kaydet(tx, { ...kimlik, eylem: 'gorev.silindi', varlikTipi: 'cizelge', varlikId: c.id, subeId: c.subeId, ip, ayrinti: { kullaniciId: g.kullaniciId, tur: g.tur, baslangic: g.baslangic.toISOString() } });
@@ -206,6 +210,7 @@ export class NobetService {
   async onayaGonder(kimlik: Kimlik, id: string, ip: string | null) {
     return this.db.kiraciIslemi(kimlik, async (tx) => {
       const c = await this.cizelgeBul(tx, id);
+      await this.yetkiService.subeIzniGerekli(tx, kimlik.kullaniciId, 'nobet.planla', c.subeId);
       if (c.durum !== 'taslak') throw new ApiHatasi(HttpStatus.CONFLICT, 'GECERSIZ_DURUM', 'Yalnızca taslak çizelge onaya gönderilebilir.');
       const [{ adet }] = (await tx.select({ adet: sql<number>`count(*)::int` }).from(gorevler).where(eq(gorevler.cizelgeId, id))) as [{ adet: number }];
       if (adet === 0) throw new ApiHatasi(HttpStatus.UNPROCESSABLE_ENTITY, 'CIZELGE_BOS', 'Boş çizelge onaya gönderilemez.');
@@ -220,6 +225,7 @@ export class NobetService {
   async karar(kimlik: Kimlik, id: string, istek: KararIstegi, ip: string | null) {
     return this.db.kiraciIslemi(kimlik, async (tx) => {
       const c = await this.cizelgeBul(tx, id);
+      await this.yetkiService.subeIzniGerekli(tx, kimlik.kullaniciId, 'nobet.onayla', c.subeId);
       if (c.durum !== 'onay_bekliyor') throw new ApiHatasi(HttpStatus.CONFLICT, 'GECERSIZ_DURUM', 'Çizelge onay beklemiyor.');
       if (c.onayaGonderenId === kimlik.kullaniciId) {
         await this.denetim.kaydet(tx, { ...kimlik, eylem: 'cizelge.karar.reddedildi', varlikTipi: 'cizelge', varlikId: id, subeId: c.subeId, ip, ayrinti: { neden: 'kendi_cizelgesi' } });
@@ -251,6 +257,7 @@ export class NobetService {
   async revizyon(kimlik: Kimlik, id: string, ip: string | null) {
     return this.db.kiraciIslemi(kimlik, async (tx) => {
       const c = await this.cizelgeBul(tx, id);
+      await this.yetkiService.subeIzniGerekli(tx, kimlik.kullaniciId, 'nobet.planla', c.subeId);
       if (c.durum === 'taslak') return { durum: 'taslak' };
       await tx.update(cizelgeler).set({ durum: 'taslak', onaylayanId: null, onayZamani: null, onayaGonderenId: null, ihlalGerekcesi: null }).where(eq(cizelgeler.id, id));
       await this.denetim.kaydet(tx, { ...kimlik, eylem: 'cizelge.revizyon', varlikTipi: 'cizelge', varlikId: id, subeId: c.subeId, ip, ayrinti: { ay: c.ay, oncekiDurum: c.durum } });

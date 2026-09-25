@@ -4,6 +4,7 @@ import { aliasedTable, and, asc, desc, eq, isNull, sql } from 'drizzle-orm';
 import { type Islem, VeritabaniService } from '../db/veritabani.service';
 import { fiyatTalepleri, hesapKalemleri, hizmetler, kasaKapanislari, kisiler, kullanicilar, randevular, tahsilatlar } from '../db/sema';
 import { DenetimService } from '../denetim/denetim.service';
+import { YetkiService } from '../yetki/yetki.service';
 import { ApiHatasi, benzersizlikIhlaliMi } from '../ortak/dogrulama';
 import type { Kimlik, YetkiBaglami } from '../yetki/baglam';
 import type { HizmetIstegi, KalemIstegi, KapanisIstegi, TahsilatIstegi } from './finans.dto';
@@ -28,6 +29,7 @@ export class FinansService {
   constructor(
     private readonly db: VeritabaniService,
     private readonly denetim: DenetimService,
+    private readonly yetkiService: YetkiService,
   ) {}
 
   // ——— Hizmetler ve fiyatlar ———
@@ -216,10 +218,11 @@ export class FinansService {
   async kalemIptal(kimlik: Kimlik, yetki: YetkiBaglami, kisiId: string, kalemId: string, neden: string, ip: string | null) {
     return this.db.kiraciIslemi(kimlik, async (tx) => {
       const [kalem] = await tx
-        .select({ id: hesapKalemleri.id, tutarKurus: hesapKalemleri.tutarKurus })
+        .select({ id: hesapKalemleri.id, tutarKurus: hesapKalemleri.tutarKurus, subeId: hesapKalemleri.subeId })
         .from(hesapKalemleri)
         .where(and(eq(hesapKalemleri.id, kalemId), eq(hesapKalemleri.kisiId, kisiId), isNull(hesapKalemleri.iptalZamani)));
       if (!kalem) throw new ApiHatasi(HttpStatus.NOT_FOUND, 'KALEM_BULUNAMADI', 'Kalem bulunamadı veya zaten iptal edilmiş.');
+      await this.yetkiService.subeIzniGerekli(tx, kimlik.kullaniciId, 'finans.iade.onayla', kalem.subeId);
       await tx.update(hesapKalemleri).set({ iptalEdenId: kimlik.kullaniciId, iptalZamani: new Date(), iptalNedeni: neden }).where(eq(hesapKalemleri.id, kalemId));
       await this.denetim.kaydet(tx, { ...kimlik, eylem: 'hesap.kalem.iptal', varlikTipi: 'hasta', varlikId: kisiId, subeId: yetki.subeId, ip, ayrinti: { tutarKurus: kalem.tutarKurus, neden } });
       return { id: kalemId };
@@ -255,6 +258,8 @@ export class FinansService {
       await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtextextended(${`iade:${tahsilatId}`}, 3))`);
       const [asil] = await tx.select().from(tahsilatlar).where(eq(tahsilatlar.id, tahsilatId));
       if (!asil || asil.tutarKurus <= 0) throw new ApiHatasi(HttpStatus.NOT_FOUND, 'TAHSILAT_BULUNAMADI', 'Tahsilat bulunamadı.');
+      // İade, tahsilatın alındığı şubenin kasasından yapılır
+      if (asil.subeId !== subeId) throw new ApiHatasi(HttpStatus.FORBIDDEN, 'SUBE_KAPSAMI_DISI', 'Bu tahsilat başka bir şubeye ait; iadeyi o şubede yapın.');
       if (asil.alanId === kimlik.kullaniciId) {
         throw new ApiHatasi(HttpStatus.FORBIDDEN, 'GOREVLER_AYRILIGI', 'Tahsilatı alan kişi iadesini onaylayamaz; başka bir yetkili yapmalıdır.');
       }
