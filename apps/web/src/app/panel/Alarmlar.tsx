@@ -1,6 +1,6 @@
 'use client';
 
-import type { AlarmKapsami, AlarmSeviyesi } from '@dc/shared';
+import { type AlarmKapsami, type AlarmSeviyesi, OLAY_SIDDETLERI, OLAY_TURLERI, type OlaySiddeti, type OlayTuru } from '@dc/shared';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
@@ -65,7 +65,7 @@ function hedef(a: Satir, benId: string): { yol: string; kim: string } {
     case 'stok':
       return { yol: a.ek?.urunId ? `/panel/stok/${a.ek.urunId}` : '/panel/stok', kim: a.sube ?? '' };
     case 'kalite':
-      return { yol: '/panel/kalite', kim: a.sube ?? metin.kurumBelgeleri.tumIsletme };
+      return { yol: '/panel/kalite', kim: metin.kalite.baslik };
   }
 }
 
@@ -77,7 +77,12 @@ function alarmMetni(a: Satir): string {
     if (a.tur === 'narkotik_fark') return m.narkotikFark(a.turAd, String(e.lot), `${e.fark} ${e.birim}`);
     return (a.kalanGun ?? 0) < 0 ? m.sktDoldu(a.turAd, String(e.lot), -(a.kalanGun ?? 0)) : m.sktYaklasan(a.turAd, String(e.lot), a.kalanGun ?? 0);
   }
-  if (a.kapsam === 'kalite') return String(a.ek?.metin ?? a.turAd);
+  if (a.kapsam === 'kalite') {
+    if (a.tur === 'olay') return m.olay(OLAY_TURLERI[a.ek?.olayTuru as OlayTuru] ?? a.turAd, OLAY_SIDDETLERI[a.ek?.siddet as OlaySiddeti] ?? '');
+    if (a.tur === 'sikayet') return m.sikayet(a.turAd, a.kalanGun ?? 0);
+    if (a.tur === 'dof_dogrulama') return m.dofDogrulama(a.turAd);
+    return m.dof(a.turAd, a.kalanGun ?? 0);
+  }
   if (a.eksikTurler && a.eksikTurler.length > 1) return m.eksikBelgeler(a.eksikTurler.length, a.eksikTurler.join(', '));
   if (a.seviye === 'eksik') return m.eksikBelge(a.turAd);
   if ((a.kalanGun ?? 0) < 0) return m.dolmus(a.turAd, -(a.kalanGun ?? 0));

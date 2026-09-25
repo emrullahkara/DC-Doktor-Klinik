@@ -4,6 +4,19 @@ Bu kapsamdaki bir sistem tek seferde yapılmaz. Öneri: **önce gelir getiren ve
 
 > **Kararlarla güncellendi ([11](11-alinan-kararlar.md)):** SaaS ürünü; tüm kurum tipleri tek uygulamada, kurum tipi profili ile; resmî entegrasyonlar aracı servis üzerinden; önce web; çok dil (TR, EN, AR, RU, DE) ilk sürümde. Kurum tipi profilleri Faz 1’de **tüm tipler için temel düzeyde** gelir (hasta modeli, randevu, muayene şablonları, onamlar, fiyat kataloğu); tipe özgü derin özellikler fazlara yayılır.
 
+## Uygulama Durumu (Eylül 2026)
+
+**Kodlandı ve testli (API + tarayıcı akış testleri):**
+- Çekirdek: çok kiracılı SaaS (RLS), kurum kayıt sihirbazı, kurum tipi profilleri, rol ve kilitli yasal yetki kuralları, hash zincirli denetim izi
+- Hasta kaydı (KVKK aydınlatma/rıza, şifreli TC kimlik), randevu ve kabul, muayene kaydı (tedavi ilişkisi, acil erişim, parolalı imza)
+- Finans: hizmet/fiyat onayı, hasta hesabı, tahsilat, iade, gün sonu kasa; Komuta Merkezi göstergeleri
+- Personel ve belge takibi, süresi dolan belgeyle işlem askıya alma, ortak alarm motoru
+- Nöbet ve vardiya çizelgesi (kurallar, dört göz onayı, izinler)
+- Stok ve ilaç (lot/SKT, FEFO, narkotik şahit, lot izleme)
+- Kalite: isimsiz olay bildirimi, şikâyet (resmî süre sayacı), DÖF
+
+**Sıradaki adaylar:** çok dil (EN, AR-RTL, RU, DE), iletişim ve hatırlatmalar (SMS/e-posta), e-Reçete/e-Nabız/e-Fatura için aracı servis adaptörleri, hekim hakedişi, cihaz/bakım ve sterilizasyon, tipe özgü modüller (odontogram, estetik seans, veteriner), mobil.
+
 ## Faz 0 — Temel (Altyapı ve Tasarım Detayı)
 - Tasarımın onaylanması, açık soruların kapatılması ([10](10-karar-bekleyen-konular.md))
 - Ekran taslakları (wireframe) — Komuta Merkezi, randevu, muayene, kasa

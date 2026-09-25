@@ -190,6 +190,8 @@ export function alarmGorulebilirMi(
 ): boolean {
   // Nöbet, stok ve kalite alarmları işin sorumlusuna (hedef izin) gider; kritikler Komuta Merkezi'ne de çıkar
   if (alarm.kapsam === 'nobet' || alarm.kapsam === 'stok' || alarm.kapsam === 'kalite') {
+    // Kişiye atanmış iş (ör. DÖF sorumlusu) kişinin kendisine de gider
+    if (alarm.kullaniciId && alarm.kullaniciId === izleyen.kullaniciId) return true;
     if (alarm.hedefIzinler?.some((i) => izleyen.izinler.has(i))) return true;
     return alarm.seviye === 'kritik' && izleyen.izinler.has('komuta.goruntule');
   }

@@ -101,4 +101,7 @@ h2 { font-size: 18px; }
 .tablo td { padding: 10px 8px; border-bottom: 1px solid var(--cizgi-acik); vertical-align: top; }
 .tablo-kaydir { overflow-x: auto; }
 
+.satir-dugme { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; width: 100%; min-height: 44px; padding: 0; border: none; background: none; font: inherit; color: inherit; text-align: left; cursor: pointer; border-radius: 8px; }
+.satir-dugme:hover strong { text-decoration: underline; }
+
 .mono { font-family: var(--font-plex-mono), ui-monospace, monospace; font-size: 13px; }

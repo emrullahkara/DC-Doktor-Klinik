@@ -5,6 +5,7 @@ import { VeritabaniService } from '../db/veritabani.service';
 import { BelgelerService } from '../belgeler/belgeler.service';
 import { NobetService } from '../nobet/nobet.service';
 import { StokService } from '../stok/stok.service';
+import { KaliteService } from '../kalite/kalite.service';
 import type { Kimlik, YetkiBaglami } from '../yetki/baglam';
 import type { Alarm } from './alarm';
 
@@ -19,6 +20,7 @@ export class AlarmlarService {
     private readonly belgeler: BelgelerService,
     private readonly nobet: NobetService,
     private readonly stok: StokService,
+    private readonly kalite: KaliteService,
   ) {}
 
   async liste(kimlik: Kimlik, yetki: YetkiBaglami): Promise<Alarm[]> {
@@ -29,6 +31,7 @@ export class AlarmlarService {
         await this.belgeler.belgeAlarmlari(tx, gun, yetki.subeId),
         await this.nobet.nobetAlarmlari(tx, gun, yetki.subeId),
         await this.stok.stokAlarmlari(tx, gun, yetki.subeId),
+        await this.kalite.kaliteAlarmlari(tx, gun, yetki.subeId),
       ];
       const izleyen = { kullaniciId: kimlik.kullaniciId, izinler: yetki.izinler };
       return kaynaklar

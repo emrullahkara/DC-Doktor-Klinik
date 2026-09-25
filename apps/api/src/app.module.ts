@@ -15,6 +15,8 @@ import { KomutaController } from './komuta/komuta.controller';
 import { KomutaService } from './komuta/komuta.service';
 import { HastalarController } from './hastalar/hastalar.controller';
 import { HastalarService } from './hastalar/hastalar.service';
+import { KaliteController } from './kalite/kalite.controller';
+import { KaliteService } from './kalite/kalite.service';
 import { KimlikController } from './kimlik/kimlik.controller';
 import { KimlikService } from './kimlik/kimlik.service';
 import { KullanicilarController } from './kullanicilar/kullanicilar.controller';
@@ -38,7 +40,7 @@ export class AppModule {
     return {
       module: AppModule,
       imports: [JwtModule.register({ secret: ayarlar.jwtGizli, signOptions: { expiresIn: '8h' } })],
-      controllers: [KimlikController, KullanicilarController, KurumTipleriController, DenetimController, HastalarController, RandevularController, MuayenelerController, FinansController, KomutaController, BelgelerController, NobetController, StokController, AlarmlarController],
+      controllers: [KimlikController, KullanicilarController, KurumTipleriController, DenetimController, HastalarController, RandevularController, MuayenelerController, FinansController, KomutaController, BelgelerController, NobetController, StokController, KaliteController, AlarmlarController],
       providers: [
         { provide: AYARLAR, useValue: ayarlar },
         VeritabaniService,
@@ -55,6 +57,7 @@ export class AppModule {
         BelgelerService,
         NobetService,
         StokService,
+        KaliteService,
         AlarmlarService,
         { provide: APP_GUARD, useClass: ErisimGuard },
       ],

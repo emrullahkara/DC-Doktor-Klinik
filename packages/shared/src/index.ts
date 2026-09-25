@@ -10,3 +10,4 @@ export * from './finans';
 export * from './belge';
 export * from './nobet';
 export * from './stok';
+export * from './kalite';
