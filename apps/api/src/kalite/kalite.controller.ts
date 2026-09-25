@@ -49,8 +49,8 @@ export class KaliteController {
 
   @Get('sikayetler')
   @HerhangiIzin('kalite.yonet', 'komuta.goruntule')
-  sikayetler(@KimlikBilgisi() kimlik: Kimlik) {
-    return this.kalite.sikayetler(kimlik);
+  sikayetler(@KimlikBilgisi() kimlik: Kimlik, @Yetki() yetki: YetkiBaglami) {
+    return this.kalite.sikayetler(kimlik, yetki);
   }
 
   @Post('sikayetler/:id/cevap')

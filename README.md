@@ -32,6 +32,7 @@ Tasarımın temel iddiası şudur: **Kliniğin sahibi hekim olmasa, kliniğe hi�
 | 11 | [Alınan Kararlar](docs/11-alinan-kararlar.md) | İş modeli, kurum tipi profili motoru, SaaS katmanı, çok dil |
 | 12 | [Marka Kılavuzu](docs/12-marka-kilavuzu.md) | Logo, renkler, yazı tipleri, arayüz dili |
 | 13 | [Ekran Taslakları](docs/13-ekran-taslaklari.md) | Onaylanan ana ekranlar ve bağlantıları |
+| — | [Ürün sunumu (PPTX)](docs/sunum/DC-Doktor-Klinik-Urun-Sunumu.pptx) · [PDF](docs/sunum/DC-Doktor-Klinik-Urun-Sunumu.pdf) | Kurulumdan kullanıma tüm özellikler, roller, kurallar ve ekler (65 slayt) |
 
 ## Önemli Not
 
@@ -88,3 +89,12 @@ pnpm test                # tüm testler (API testleri dc_klinik_test veritabanı
 | `GET /alarmlar` | Alarm motoru: süresi yaklaşan/geçen ve eksik zorunlu belgeler; görünürlük eskalasyon kuralına göre |
 | `GET /komuta/ozet` | Komuta Merkezi: bugünkü randevu, ciro, alacak, bekleme süresi, 14 günlük tahsilat |
 | `GET /denetim-izi` | Hash zincirli, değiştirilemez erişim ve işlem kayıtları |
+
+### Güvenlik önlemleri (özet)
+
+- **Kiracı izolasyonu:** PostgreSQL satır düzeyi güvenlik (RLS); uygulama kullanıcısı tablo sahibi değildir.
+- **Yetki sınırı:** Her istekte rol + şube kapsamı + kilitli meslek kuralları yeniden yüklenir; başka şubeye ait kayıt üzerinde işlem `403 SUBE_KAPSAMI_DISI` döner (finans iade/iptal, nöbet planlama/onay, kurum belgeleri, kalite kayıtları). Reddedilen istekler denetim izine yazılır.
+- **Kaba kuvvet koruması:** Girişte aynı e-posta için 15 dakikada 5, aynı IP için 30 hatalı deneme; kurum kaydında IP başına saatte 5 deneme. Aşımda `429 COK_FAZLA_DENEME`. Sayaç süreç içi bellektedir; birden çok API örneği çalıştırılacaksa ortak bir depoya (Redis) taşınmalıdır. Ters vekil arkasında `TRUST_PROXY` ayarlanmalıdır.
+- **HTTP başlıkları:** API ve web; CSP, `X-Frame-Options: DENY`, `nosniff`, `Referrer-Policy: no-referrer` gönderir, `X-Powered-By` kapalıdır; web üretimde HSTS ekler.
+- **Veri:** Parolalar Argon2; kimlik no AES-256-GCM + HMAC kör indeks; yüklenen dosyalar şifreli; denetim izi yalnız eklemeli ve hash zincirli.
+- **Bilinen sınır:** Oturum belirteci (JWT) çıkıştan sonra süresi dolana kadar geçerlidir; httpOnly + SameSite=Strict çerezde tutulduğu için tarayıcı dışından erişilemez.

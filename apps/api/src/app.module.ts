@@ -27,6 +27,7 @@ import { NobetService } from './nobet/nobet.service';
 import { MuayenelerController } from './muayeneler/muayeneler.controller';
 import { MuayenelerService } from './muayeneler/muayeneler.service';
 import { AlanSifrelemeService } from './ortak/alan-sifreleme.service';
+import { DenemeSiniriService } from './ortak/deneme-siniri.service';
 import { RandevularController } from './randevular/randevular.controller';
 import { RandevularService } from './randevular/randevular.service';
 import { ErisimGuard } from './yetki/erisim.guard';
@@ -49,6 +50,7 @@ export class AppModule {
         KimlikService,
         KullanicilarService,
         AlanSifrelemeService,
+        DenemeSiniriService,
         HastalarService,
         RandevularService,
         MuayenelerService,

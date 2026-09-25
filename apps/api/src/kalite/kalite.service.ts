@@ -1,7 +1,7 @@
 import { randomInt } from 'node:crypto';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { cevapSonTarihi, KURUM_SAAT_DILIMI, olayKapatilabilirMi, type OlaySiddeti, SIKAYET_KANALLARI, type SikayetKanali, TAKIP_KODU_ALFABESI } from '@dc/shared';
-import { and, asc, desc, eq, inArray, or, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray, isNull, or, sql } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import type { Alarm } from '../alarmlar/alarm';
 import { dofler, kisiler, kullanicilar, olayBildirimleri, sikayetler } from '../db/sema';
@@ -10,6 +10,7 @@ import { DenetimService } from '../denetim/denetim.service';
 import { AlanSifrelemeService } from '../ortak/alan-sifreleme.service';
 import { ApiHatasi, benzersizlikIhlaliMi } from '../ortak/dogrulama';
 import type { Kimlik, YetkiBaglami } from '../yetki/baglam';
+import { YetkiService } from '../yetki/yetki.service';
 import type { DofIstegi, OlayGuncelleIstegi, OlayIstegi, SikayetIstegi } from './kalite.dto';
 
 async function bugun(tx: Islem): Promise<string> {
@@ -27,6 +28,7 @@ export class KaliteService {
     private readonly db: VeritabaniService,
     private readonly denetim: DenetimService,
     private readonly sifreleme: AlanSifrelemeService,
+    private readonly yetkiService: YetkiService,
   ) {}
 
   // ——— Olay bildirimi ———
@@ -96,9 +98,19 @@ export class KaliteService {
     );
   }
 
+  /**
+   * Kalite kayıtlarında şube kapsamı: tüm şubelerde yetkili olan hepsini, yalnız bir şubede
+   * yetkili olan o şubenin ve şubesiz (işletme geneli) kayıtları görür.
+   */
+  private async subeKosulu(tx: Islem, kimlik: Kimlik, yetki: YetkiBaglami, sutun: typeof olayBildirimleri.subeId | typeof sikayetler.subeId, izinler: ('kalite.yonet' | 'komuta.goruntule')[]) {
+    for (const izin of izinler) if (await this.yetkiService.subedeIzinVarMi(tx, kimlik.kullaniciId, izin, null)) return sql`true`;
+    return yetki.subeId ? or(eq(sutun, yetki.subeId), isNull(sutun))! : isNull(sutun);
+  }
+
   async olaylar(kimlik: Kimlik, yetki: YetkiBaglami) {
     const hastaGorur = yetki.izinler.has('hasta.demografik.goruntule');
     return this.db.kiraciIslemi(kimlik, async (tx) => {
+      const kapsam = await this.subeKosulu(tx, kimlik, yetki, olayBildirimleri.subeId, ['kalite.yonet']);
       const sorumlu = alias(kullanicilar, 'sorumlu');
       const satirlar = await tx
         .select({ o: olayBildirimleri, bildiren: kullanicilar.adSoyad, sorumlu: sorumlu.adSoyad, hastaAd: kisiler.ad, hastaSoyad: kisiler.soyad })
@@ -106,6 +118,7 @@ export class KaliteService {
         .leftJoin(kullanicilar, eq(kullanicilar.id, olayBildirimleri.bildirenId))
         .leftJoin(sorumlu, eq(sorumlu.id, olayBildirimleri.sorumluId))
         .leftJoin(kisiler, eq(kisiler.id, olayBildirimleri.kisiId))
+        .where(kapsam)
         .orderBy(desc(olayBildirimleri.zaman))
         .limit(300);
       // Şifreli kimlik hiçbir zaman dışarı verilmez
@@ -123,6 +136,7 @@ export class KaliteService {
     return this.db.kiraciIslemi(kimlik, async (tx) => {
       const [o] = await tx.select().from(olayBildirimleri).where(eq(olayBildirimleri.id, id));
       if (!o) throw new ApiHatasi(HttpStatus.NOT_FOUND, 'OLAY_BULUNAMADI', 'Olay bulunamadı.');
+      if (o.subeId) await this.yetkiService.subeIzniGerekli(tx, kimlik.kullaniciId, 'kalite.yonet', o.subeId);
       if (o.durum === 'kapatildi') throw new ApiHatasi(HttpStatus.CONFLICT, 'OLAY_KAPALI', 'Kapatılmış olay değiştirilemez.');
       const kokNeden = istek.kokNeden ?? o.kokNeden;
       const onlem = istek.alinanOnlem ?? o.alinanOnlem;
@@ -168,8 +182,9 @@ export class KaliteService {
     });
   }
 
-  async sikayetler(kimlik: Kimlik) {
+  async sikayetler(kimlik: Kimlik, yetki: YetkiBaglami) {
     return this.db.kiraciIslemi(kimlik, async (tx) => {
+      const kapsam = await this.subeKosulu(tx, kimlik, yetki, sikayetler.subeId, ['kalite.yonet', 'komuta.goruntule']);
       const gun = await bugun(tx);
       const cevaplayan = alias(kullanicilar, 'cevaplayan');
       const satirlar = await tx
@@ -177,6 +192,7 @@ export class KaliteService {
         .from(sikayetler)
         .innerJoin(kullanicilar, eq(kullanicilar.id, sikayetler.kaydedenId))
         .leftJoin(cevaplayan, eq(cevaplayan.id, sikayetler.cevaplayanId))
+        .where(kapsam)
         .orderBy(asc(sikayetler.durum), asc(sikayetler.sonTarih))
         .limit(300);
       return satirlar.map(({ s: { isletmeId: _i, ...s }, kaydeden, cevaplayan: c }) => ({
@@ -194,6 +210,7 @@ export class KaliteService {
     return this.db.kiraciIslemi(kimlik, async (tx) => {
       const [s] = await tx.select().from(sikayetler).where(eq(sikayetler.id, id));
       if (!s) throw new ApiHatasi(HttpStatus.NOT_FOUND, 'SIKAYET_BULUNAMADI', 'Şikâyet bulunamadı.');
+      if (s.subeId) await this.yetkiService.subeIzniGerekli(tx, kimlik.kullaniciId, 'kalite.yonet', s.subeId);
       if (s.durum !== 'acik') throw new ApiHatasi(HttpStatus.CONFLICT, 'SIKAYET_CEVAPLANMIS', 'Bu şikâyet zaten cevaplandı.');
       if (s.kategori === 'tibbi' && !yetki.izinler.has('tibbi.kayit.denetim')) {
         throw new ApiHatasi(HttpStatus.FORBIDDEN, 'TIBBI_DEGERLENDIRME', 'Tıbbi içerikli şikâyeti başhekim veya mesul müdür cevaplamalı.');
@@ -206,8 +223,9 @@ export class KaliteService {
 
   async sikayetKapat(kimlik: Kimlik, id: string, ip: string | null) {
     return this.db.kiraciIslemi(kimlik, async (tx) => {
-      const [s] = await tx.select({ durum: sikayetler.durum }).from(sikayetler).where(eq(sikayetler.id, id));
+      const [s] = await tx.select({ durum: sikayetler.durum, subeId: sikayetler.subeId }).from(sikayetler).where(eq(sikayetler.id, id));
       if (!s) throw new ApiHatasi(HttpStatus.NOT_FOUND, 'SIKAYET_BULUNAMADI', 'Şikâyet bulunamadı.');
+      if (s.subeId) await this.yetkiService.subeIzniGerekli(tx, kimlik.kullaniciId, 'kalite.yonet', s.subeId);
       if (s.durum !== 'cevaplandi') throw new ApiHatasi(HttpStatus.CONFLICT, 'GECERSIZ_DURUM', 'Önce şikâyet cevaplanmalı.');
       await tx.update(sikayetler).set({ durum: 'kapatildi' }).where(eq(sikayetler.id, id));
       await this.denetim.kaydet(tx, { ...kimlik, eylem: 'sikayet.kapatildi', varlikTipi: 'sikayet', varlikId: id, ip });

@@ -211,6 +211,8 @@ export class BelgelerService {
     }
 
     return this.db.kiraciIslemi(kimlik, async (tx) => {
+      // Kurum belgesi: hedef şubede (işletme geneli için tüm şubeler düzeyinde) yetki gerekir
+      if (!personel) await this.yetkiService.subeIzniGerekli(tx, kimlik.kullaniciId, 'belge.kurum.yonet', istek.subeId ?? null);
       if (personel) {
         const [k] = await tx.select({ id: kullanicilar.id }).from(kullanicilar).where(eq(kullanicilar.id, istek.kullaniciId!));
         if (!k) throw new ApiHatasi(HttpStatus.NOT_FOUND, 'PERSONEL_BULUNAMADI', 'Personel bulunamadı.');
@@ -270,6 +272,7 @@ export class BelgelerService {
       const b = await this.belgeBul(tx, id);
       const gereken = b.kapsam === 'personel' ? 'personel.yonet' : 'belge.kurum.yonet';
       if (!yetki.izinler.has(gereken)) throw new ApiHatasi(HttpStatus.FORBIDDEN, 'YETKI_YOK', 'Bu işlem için yetkiniz yok.', { eksikIzinler: [gereken] });
+      if (b.kapsam === 'kurum') await this.yetkiService.subeIzniGerekli(tx, kimlik.kullaniciId, 'belge.kurum.yonet', b.subeId);
       if (b.kaldirmaZamani) throw new ApiHatasi(HttpStatus.CONFLICT, 'BELGE_KALDIRILMIS', 'Belge zaten kaldırılmış.');
       await tx.update(belgeler).set({ kaldiranId: kimlik.kullaniciId, kaldirmaZamani: new Date(), kaldirmaNedeni: neden }).where(eq(belgeler.id, id));
       await this.denetim.kaydet(tx, { ...kimlik, eylem: 'belge.kaldirildi', varlikTipi: 'belge', varlikId: id, subeId: b.subeId, ip, ayrinti: { kapsam: b.kapsam, tur: b.tur, neden, ...(b.kullaniciId ? { kullaniciId: b.kullaniciId } : {}) } });
@@ -283,7 +286,8 @@ export class BelgelerService {
       const izinli =
         b.kapsam === 'personel'
           ? b.kullaniciId === kimlik.kullaniciId || yetki.izinler.has('personel.yonet') || yetki.izinler.has('personel.goruntule')
-          : yetki.izinler.has('belge.kurum.yonet') || yetki.izinler.has('komuta.goruntule');
+          : (await this.yetkiService.subedeIzinVarMi(tx, kimlik.kullaniciId, 'belge.kurum.yonet', b.subeId)) ||
+            (await this.yetkiService.subedeIzinVarMi(tx, kimlik.kullaniciId, 'komuta.goruntule', b.subeId));
       if (!izinli) throw new ApiHatasi(HttpStatus.FORBIDDEN, 'YETKI_YOK', 'Bu işlem için yetkiniz yok.');
       if (!b.dosyaId) throw new ApiHatasi(HttpStatus.NOT_FOUND, 'DOSYA_YOK', 'Bu belgeye dosya eklenmemiş.');
       const [d] = await tx.select().from(dosyalar).where(eq(dosyalar.id, b.dosyaId));

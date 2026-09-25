@@ -11,6 +11,8 @@ export const TEST_AYARLARI: Ayarlar = {
   port: 0,
   guvenliCerez: false,
   alanAnahtari: Buffer.alloc(32, 7),
+  // Testler aynı IP'den çok sayıda kurum açar
+  kayitSiniri: 1000,
 };
 
 /** Test veritabanını sıfırlar ve tüm migration'ları baştan uygular. */
