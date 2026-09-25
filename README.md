@@ -32,6 +32,7 @@ Tasarımın temel iddiası şudur: **Kliniğin sahibi hekim olmasa, kliniğe hi�
 | 11 | [Alınan Kararlar](docs/11-alinan-kararlar.md) | İş modeli, kurum tipi profili motoru, SaaS katmanı, çok dil |
 | 12 | [Marka Kılavuzu](docs/12-marka-kilavuzu.md) | Logo, renkler, yazı tipleri, arayüz dili |
 | 13 | [Ekran Taslakları](docs/13-ekran-taslaklari.md) | Onaylanan ana ekranlar ve bağlantıları |
+| — | [Ürün sunumu (PPTX)](docs/sunum/DC-Doktor-Klinik-Urun-Sunumu.pptx) · [PDF](docs/sunum/DC-Doktor-Klinik-Urun-Sunumu.pdf) | Kurulumdan kullanıma tüm özellikler, roller, kurallar ve ekler (65 slayt) |
 
 ## Önemli Not
 
